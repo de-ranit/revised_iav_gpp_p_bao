@@ -222,7 +222,7 @@ def set_ticks_for_selected_subplots(axs, selected_indices):
     for row in axs:
         for ax in row:
             ax.tick_params(
-                axis="x", which="both", bottom=False, top=False, labelbottom=False
+                axis="x", which="both", top=False, labelbottom=False
             )
 
     # Enable x-axis ticks for selected subplots

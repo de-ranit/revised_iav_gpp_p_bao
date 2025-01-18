@@ -162,6 +162,23 @@ def get_qc_mod_perform(result_dict, model_name):
         "min_gpp_val": min_gpp_val,
     }
 
+def set_ticks_for_selected_subplots(axs, selected_indices):
+    """
+    hide subplot x axis ticks and only enable for given subplots
+    """
+
+    # Hide x-axis ticks for all subplots
+    for row in axs:
+        for ax in row:
+            ax.tick_params(
+                axis="x", which="both", top=False, labelbottom=False  # bottom=False
+            )
+
+    # Enable x-axis ticks for selected subplots
+    for i, j in selected_indices:
+        axs[i][j].tick_params(
+            axis="x", which="both", bottom=True, top=False, labelbottom=True
+        )
 
 def create_ax_gpp_ts(axs, result_dict, qc_mod_perform_dict, model_name, subplot_seq):
     """
@@ -335,7 +352,7 @@ def plot_fig(path_coll, site_id, model_name, op_folder, filename_order, full_sit
     )  # Height in inches to maintain a 16:9 aspect ratio
 
     # create the figure
-    fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(
+    fig, axs = plt.subplots(
         nrows=2, ncols=3, figsize=(fig_width, fig_height), sharex=True, sharey=True
     )  # 22, 15
 
@@ -362,7 +379,7 @@ def plot_fig(path_coll, site_id, model_name, op_folder, filename_order, full_sit
 
     # create the subplots
     create_ax_gpp_ts(
-        ax1,
+        axs[0,0],
         per_site_yr_res_dict,
         per_site_yr_qc_mod_perform_dict,
         model_name,
@@ -370,35 +387,37 @@ def plot_fig(path_coll, site_id, model_name, op_folder, filename_order, full_sit
     )
     # create the subplots
     create_ax_gpp_ts(
-        ax2,
+        axs[0,1],
         per_site_iav_res_dict,
         per_site_iav_qc_mod_perform_dict,
         model_name,
         r"\textbf{(b) Per site parameterization using} $\mathbf{Cost^{IAV}}$",
     )
     create_ax_gpp_ts(
-        ax3,
+        axs[0,2],
         per_site_res_dict,
         per_site_qc_mod_perform_dict,
         model_name,
         r"\textbf{(c) Per site parameterization}",
     )
     create_ax_gpp_ts(
-        ax4,
+        axs[1,0],
         per_pft_res_dict,
         per_pft_qc_mod_perform_dict,
         model_name,
         r"\textbf{(d) Per PFT parameterization}",
     )
     create_ax_gpp_ts(
-        ax5,
+        axs[1,1],
         glob_opti_res_dict,
         glob_opti_qc_mod_perform_dict,
         model_name,
         r"\textbf{(e) Global parameterization}",
     )
 
-    fig.delaxes(ax6)  # remove the last subplot
+    set_ticks_for_selected_subplots(axs, [(0, 2), (1, 0), (1, 1)])
+
+    fig.delaxes(axs[1,2])  # remove the last subplot
 
     # create a legend
     legend_elements = [

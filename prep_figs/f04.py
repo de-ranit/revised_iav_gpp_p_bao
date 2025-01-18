@@ -252,7 +252,7 @@ def plot_fig_main(p_mod_res_path):
         Line2D(
             [0],
             [0],
-            lw=4,
+            lw=1.5,
             linestyle="-",
             color="black",
             label="1:1 line",
@@ -262,9 +262,9 @@ def plot_fig_main(p_mod_res_path):
         Line2D(
             [0],
             [0],
-            lw=4,
+            lw=2,
             linestyle="--",
-            dashes=(1.6, 1),
+            dashes=(1.6, 2),
             color="red",
             label="fitted regression line",
             markerfacecolor="red",

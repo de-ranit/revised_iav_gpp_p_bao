@@ -317,8 +317,8 @@ def plot_axs(
 
     return {
         "syr_med": np.median(nnse_syr),
-        "allyr_med": np.median(nnse_allyr),
         "nnse_allyr_iav_med": np.median(nnse_allyr_iav),
+        "allyr_med": np.median(nnse_allyr),
         "pft_med": np.median(nnse_pft),
         "glob_med": np.median(nnse_glob),
     }
@@ -840,15 +840,15 @@ def plot_fig_main(result_paths):
     )
 
     print("hr/daily")
-    print(df_hr.round(3))
+    print(df_hr.to_latex(index=False, float_format="%.3f"))
     print("yearly")
-    print(df_yr.round(3))
+    print(df_yr.to_latex(index=False, float_format="%.3f"))
     print("daily")
-    print(df_dd.round(3))
+    print(df_dd.to_latex(index=False, float_format="%.3f"))
     print("weekly")
-    print(df_ww.round(3))
+    print(df_ww.to_latex(index=False, float_format="%.3f"))
     print("monthly")
-    print(df_mm.round(3))
+    print(df_mm.to_latex(index=False, float_format="%.3f"))
 
 
 if __name__ == "__main__":
