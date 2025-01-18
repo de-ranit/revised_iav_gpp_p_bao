@@ -67,7 +67,7 @@ def get_params(ip_df_dict, p_list=None, p_vec=None):
     # maximum LUE (µmol C/ µmol photons)
     # 1 gc/MJ = 1/(12.0107 * 2.04) µmol C/ µmol photons
     # cosidering 1J = 2.04 µmol photons; 1 gc = (1/12.0107) * 1e6 µmol C
-    params["LUE_max"] = {"ini": 0.04, "ub": 0.4, "lb": 0.0}
+    params["LUE_max"] = {"ini": 0.04, "ub": 0.13, "lb": 0.0}
     params["T_opt"] = {"ini": 10.0, "ub": 35.0, "lb": 5.0}  # optimal temperature (°C)
     params["K_T"] = {
         "ini": 2.0,
