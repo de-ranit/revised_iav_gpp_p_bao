@@ -80,7 +80,7 @@ Primary Production, ESS Open Archive, 2024, 1–42, https://doi.org/10.22541/ess
 ```
   - APA
 ```
-De, R. (2024). Scripts for analyses presented in "Addressing challenges in simulating inter–annual variability of gross primary production" (v1.1-preprint). Zenodo. https://doi.org/10.5281/zenodo.13729514
+De, R. (2024). Scripts for analyses presented in "Addressing challenges in simulating inter–annual variability of gross primary production" (v1.2-preprint). Zenodo. https://doi.org/10.5281/zenodo.13729514
 ```
 
 # License
