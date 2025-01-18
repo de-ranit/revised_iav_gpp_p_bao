@@ -299,7 +299,7 @@ def plot_peak_bias_hist(p_model_res_path, lue_model_res_path, percentile):
         site_yr_lue_model_annual_nnse,
         per_site_iav_p_model_annual_nnse,
         per_site_iav_lue_model_annual_nnse,
-        r"(a) $j1$ = site year, $j2$ = site ($Cost^{IAV}$)",
+        r"(a) $j1$ = site--year, $j2$ = site ($Cost^{IAV}$)",
     )
 
     plot_axs_diff(
@@ -312,7 +312,7 @@ def plot_peak_bias_hist(p_model_res_path, lue_model_res_path, percentile):
         site_yr_lue_model_annual_nnse,
         per_site_p_model_annual_nnse,
         per_site_lue_model_annual_nnse,
-        r"(b) $j1$ = site year, $j2$ = site",
+        r"(b) $j1$ = site--year, $j2$ = site",
     )
 
     plot_axs_diff(
@@ -325,7 +325,7 @@ def plot_peak_bias_hist(p_model_res_path, lue_model_res_path, percentile):
         site_yr_lue_model_annual_nnse,
         per_pft_p_model_annual_nnse,
         per_pft_lue_model_annual_nnse,
-        r"(c) $j1$ = site year, $j2$ = PFT",
+        r"(c) $j1$ = site--year, $j2$ = PFT",
     )
 
     plot_axs_diff(
@@ -338,7 +338,7 @@ def plot_peak_bias_hist(p_model_res_path, lue_model_res_path, percentile):
         site_yr_lue_model_annual_nnse,
         glob_opti_p_model_annual_nnse,
         glob_opti_lue_model_annual_nnse,
-        r"(d) $j1$ = site year, $j2$ = global",
+        r"(d) $j1$ = site--year, $j2$ = global",
     )
 
     plot_axs_diff(
