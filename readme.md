@@ -83,6 +83,19 @@ Primary Production, ESS Open Archive, 2024, 1–42, https://doi.org/10.22541/ess
 De, R. (2024). Scripts for analyses presented in "Addressing challenges in simulating inter–annual variability of gross primary production" (v1.2-preprint). Zenodo. https://doi.org/10.5281/zenodo.13729514
 ```
 
+# Change Log:
+**v1.0-preprint**
+- Initial code for submission to a Zenodo repository and publication of preprint.
+
+**v1.1-preprint**
+- Updated readme with citations for the preprint and the Zenodo repository.
+
+**v1.2-preprint**
+- updated upper limit of LUEmax model parameter for Bao model and its variations.
+- updated codes for figures as per reviewers' suggestions.
+- updated license.
+
+
 # License
 [![GNU GPL v3.0][gnu-gpl-v3-shield]][gnu-gpl-v3]
 
