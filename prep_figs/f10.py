@@ -171,7 +171,7 @@ def plot_axs_diff(
         exp_1_lue_model_annual_nnse - exp_2_lue_model_annual_nnse,
         color="#015296",
         alpha=0.6,
-        marker="^"
+        marker="^",
     )
 
     corr_p = ma.corrcoef(
@@ -212,6 +212,45 @@ def plot_axs_diff(
 
     sns.despine(ax=ax, top=True, right=True)
 
+    # get the values which are reported in results section
+    # if (title == r"(d) $j1$ = site--year, $j2$ = global") or (
+    #     title == r"(e) $j1$ = site ($Cost^{IAV}$), $j2$ = site"
+    # ):
+    #     diff_nnse_p90_p_model = exp_1_p_model_nnse_p90 - exp_2_p_model_nnse_p90
+    #     diff_nnse_annual_p_model = exp_1_p_model_annual_nnse - exp_2_p_model_annual_nnse
+
+    #     diff_nnse_p90_lue_model = exp_1_lue_model_nnse_p90 - exp_2_lue_model_nnse_p90
+    #     diff_nnse_annual_lue_model = (
+    #         exp_1_lue_model_annual_nnse - exp_2_lue_model_annual_nnse
+    #     )
+
+    #     positive_mask_p_model = (diff_nnse_p90_p_model > 0) & (
+    #         diff_nnse_annual_p_model > 0
+    #     )
+    #     positive_mask_lue_model = (diff_nnse_p90_lue_model > 0) & (
+    #         diff_nnse_annual_lue_model > 0
+    #     )
+
+    #     perc_positive_val_p_model = round(
+    #         (np.sum(positive_mask_p_model) / len(positive_mask_p_model)) * 100.0, 0
+    #     )
+    #     perc_positive_val_lue_model = round(
+    #         (np.sum(positive_mask_lue_model) / len(positive_mask_lue_model)) * 100.0, 0
+    #     )
+
+    #     print(
+    #         (
+    #             "Percentage of positive values for P model:"
+    #             f"{perc_positive_val_p_model} when {title}"
+    #         )
+    #     )
+    #     print(
+    #         (
+    #             "Percentage of positive values for LUE model:"
+    #             f"{perc_positive_val_lue_model} when {title}"
+    #         )
+    #     )
+
 
 def set_ticks_for_selected_subplots(axs, selected_indices):
     """
@@ -221,9 +260,7 @@ def set_ticks_for_selected_subplots(axs, selected_indices):
     # Hide x-axis ticks for all subplots
     for row in axs:
         for ax in row:
-            ax.tick_params(
-                axis="x", which="both", top=False, labelbottom=False
-            )
+            ax.tick_params(axis="x", which="both", top=False, labelbottom=False)
 
     # Enable x-axis ticks for selected subplots
     for i, j in selected_indices:
