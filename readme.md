@@ -1,4 +1,5 @@
-[![DOI](https://zenodo.org/badge/853696566.svg)](https://zenodo.org/doi/10.5281/zenodo.13729514)
+[![Static Badge](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.13729514-blue?logo=Zenodo&logoColor=white&logoSize=auto)](https://doi.org/10.5281/zenodo.13729514)
+[![Static Badge](https://img.shields.io/badge/Preprint_DOI-10.22541%2Fessoar.172656939.93739740%2Fv1-blue)](https://doi.org/10.22541/essoar.172656939.93739740/v1)
 
 # Addressing Challenges in Simulating Inter–annual Variability of Gross Primary Production
 ![alt text](https://github.com/de-ranit/iav_gpp_p_bao/blob/main/prep_figs/figures/f01.png?raw=true)
@@ -14,7 +15,7 @@ Primary Production, ESS Open Archive, 2024, 1–42, https://doi.org/10.22541/ess
 
 We used majorly the following two models in our study. It is highly recommended to get acquainted with the following two research papers before using our codes.
 
-1. Mechanistic model: P-model of Mengoli
+1. Optimality-based model: P-model of Mengoli
 ```
 Mengoli, G., Agustí-Panareda, A., Boussetta, S., Harrison, S. P., Trotta, C., and Prentice, I. C.: Ecosystem photosynthesis in
 land-surface models: A first-principles approach incorporating acclimation, Journal of Advances in Modeling Earth Systems, 14,
@@ -30,11 +31,11 @@ https://doi.org/10.1016/j.agrformet.2021.108708, 2022
 ```
 
 # Disclaimer
-The codes are written to be compatible with computing platforms and filestructure of [MPI-BGC, Jena](https://www.bgc-jena.mpg.de/). It maybe necessary to adapt the certain parts of codes to make them compatible with other computing platforms. All the data should be prepared in NetCDF format and variables should be named as per the code. While the actual data used for analysis is not shared in this repository, all the data source are cited in the relevant paper and openly accessible. Corresponding author (Ranit De, [rde@bgc-jena.mpg.de](mailto:rde@bgc-jena.mpg.de) or [de.ranit19@gmail.com](mailto:de.ranit19@gmail.com)) can be contacted in regards to code usage and data preparation. Any usage of codes are sole responsibility of the users.
+The codes are written to be compatible with computing platforms and filestructure of [MPI-BGC, Jena](https://www.bgc-jena.mpg.de/). It maybe necessary to adapt the certain parts of codes to make them compatible with other computing platforms. All the data should be prepared in NetCDF format and variables should be named as per the code. While the actual data used for analysis is not shared in this repository due to large sizes, all the data source are cited in the relevant paper and openly accessible. Corresponding author (Ranit De, [rde@bgc-jena.mpg.de](mailto:rde@bgc-jena.mpg.de) or [de.ranit19@gmail.com](mailto:de.ranit19@gmail.com)) can be contacted in regards to code usage and data preparation. Any usage of codes are sole responsibility of the users.
 
 # Structure 
 - `site_info`: This folder contains two `.csv` files: (1) `SiteInfo_BRKsite_list.csv`, this one is necessary so that the code knows data for which all sites are available and can access site specific metadata for preparing results, such as data analysis and grouping of sites according to site characteristics, (2) `site_year_list.csv` lists all the site–years available for site–year specific optimization. This list also contains site–years which are not of good quality, and later gets excluded during data processing steps.
-- `src`: This folder basically contains all source codes. It has four folders: (1) `common` folder contains all the scripts which are common for both the mechanistic (P-model and its variations) and the semi-empirical model (Bao model and its variations), (2) `lue_model` contains model codes and cost function specific to the semi-empirical model (Bao model and its variations), (3) `p_model` contains model codes and cost function specific to the mechanistic (P-model and its variations), and (4) `postprocess` contains all the scripts to prepare exploratory plots after parameterization and forward runs.
+- `src`: This folder basically contains all source codes. It has four folders: (1) `common` folder contains all the scripts which are common for both the Optimality-based (P-model and its variations) and the semi-empirical model (Bao model and its variations), (2) `lue_model` contains model codes and cost function specific to the semi-empirical model (Bao model and its variations), (3) `p_model` contains model codes and cost function specific to the Optimality-based (P-model and its variations), and (4) `postprocess` contains all the scripts to prepare exploratory plots after parameterization and forward runs.
 - `prep_figs`: This folder contains all the scripts to reproduce the figures which are presented in our research paper and its supplementary document. All modelling experiments and their relevant data must be available to reproduce the figures and their relative paths should be correctly mentioned at `result_path_coll.py`.
 
 # How to run codes?
@@ -72,24 +73,24 @@ Primary Production, ESS Open Archive, 2024, 1–42, https://doi.org/10.22541/ess
   month        = sep,
   year         = 2024,
   publisher    = {Zenodo},
-  version      = {v1.1-preprint},
-  doi          = {10.5281/zenodo.13729515},
+  version      = {v1.2-preprint},
+  doi          = {10.5281/zenodo.13729514},
   url          = {https://github.com/de-ranit/iav_gpp_p_bao}
 }
 ```
   - APA
 ```
-De, R. (2024). Scripts for analyses presented in "Addressing challenges in simulating inter–annual variability of gross primary production" (v1.1-preprint). Zenodo. https://doi.org/10.5281/zenodo.13729515
+De, R. (2024). Scripts for analyses presented in "Addressing challenges in simulating inter–annual variability of gross primary production" (v1.1-preprint). Zenodo. https://doi.org/10.5281/zenodo.13729514
 ```
 
 # License
-Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
+[![GNU GPL v3.0][gnu-gpl-v3-shield]][gnu-gpl-v3]
 
 This work is licensed under a
-[Creative Commons Attribution 4.0 International License][cc-by].
+[GNU General Public License v3.0][gnu-gpl-v3].
 
-[![CC BY 4.0][cc-by-image]][cc-by]
+[![GNU GPL v3.0][gnu-gpl-v3-image]][gnu-gpl-v3]
 
-[cc-by]: http://creativecommons.org/licenses/by/4.0/
-[cc-by-image]: https://i.creativecommons.org/l/by/4.0/88x31.png
-[cc-by-shield]: https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg
+[gnu-gpl-v3]: https://www.gnu.org/licenses/gpl-3.0.en.html
+[gnu-gpl-v3-image]: https://www.gnu.org/graphics/gplv3-127x51.png
+[gnu-gpl-v3-shield]: https://img.shields.io/badge/License-GNU_GPL_v3.0-blue
