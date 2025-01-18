@@ -175,7 +175,6 @@ def plot_axs(ax, data_dict, title):
             #     # Place the text annotation on the plot
             #     ax.text(x_position, y_position, f'{median_value:.2f}',
             #             ha='center', va='bottom', fontsize=8, color='blue')
-            #     coll_dict[opti_type].append(round(median_value,2))
 
     # set x-axis labels as PFT (with number of sites in each PFT in brackets)
     ax.set_xticks(np.arange(2.5, 4 * len(pft_list) + 1, 4))

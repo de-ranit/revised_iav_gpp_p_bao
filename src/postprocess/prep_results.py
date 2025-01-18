@@ -463,7 +463,7 @@ def prep_results(ip_df_dict, model_op, settings_dict, xbest, p_names):
             "GPPp_opt",
             # no_of_param,
         )
-        import ipdb; ipdb.set_trace()
+
     elif settings_dict["model_name"] == "LUE_model":
         # get the exact same subdaily gpp_obs and gpp_sim as in the optimization
         (
@@ -773,5 +773,5 @@ def prep_results(ip_df_dict, model_op, settings_dict, xbest, p_names):
         f"ET_KGE_{ip_df_dict['Temp_res']}": et_kge,
         f"ET_RMSE_{ip_df_dict['Temp_res']}": et_rmse,
     }
-    
+
     return result_dict

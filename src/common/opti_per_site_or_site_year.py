@@ -240,7 +240,7 @@ def optimize_model(
                 co2_var_name=settings_dict["CO2_var"],
                 data_filtering=settings_dict["data_filtering"],
                 cost_func=settings_dict["cost_func"],
-                consider_yearly_cost=settings_dict["cost_iav"]
+                consider_yearly_cost=settings_dict["cost_iav"],
             )
         else:  # in case of site year optimization
             costhand = partial(
@@ -319,7 +319,7 @@ def optimize_model(
                 data_filtering=settings_dict["data_filtering"],
                 cost_func=settings_dict["cost_func"],
                 synthetic_data=synthetic_data,
-                consider_yearly_cost=settings_dict["cost_iav"]
+                consider_yearly_cost=settings_dict["cost_iav"],
             )
 
         else:  # in case of site year optimization
@@ -473,24 +473,22 @@ def optimize_model(
         )  # add the site year in case of site year optimization
         op_opti["xbest"] = res.result.xbest  # best solution evaluated
         op_opti["fbest"] = res.result.fbest  # objective function value of best solution
-        op_opti[
-            "evals_best"
-        ] = res.result.evals_best  # evaluation count when xbest was evaluated
-        op_opti[
-            "evaluations"
-        ] = res.result.evaluations  # number of function evaluations done
-        op_opti[
-            "xfavorite"
-        ] = res.result.xfavorite  # distribution mean in "phenotype" space,
+        op_opti["evals_best"] = (
+            res.result.evals_best
+        )  # evaluation count when xbest was evaluated
+        op_opti["evaluations"] = (
+            res.result.evaluations
+        )  # number of function evaluations done
+        op_opti["xfavorite"] = (
+            res.result.xfavorite
+        )  # distribution mean in "phenotype" space,
         # to be considered as current best estimate of the optimum
-        op_opti[
-            "stop"
-        ] = (
+        op_opti["stop"] = (
             res.result.stop
         )  # stop criterion reached (termination conditions in a dictionary)
-        op_opti[
-            "stds"
-        ] = res.result.stds  # effective standard deviations, can be used to
+        op_opti["stds"] = (
+            res.result.stds
+        )  # effective standard deviations, can be used to
         #   compute a lower bound on the expected coordinate-wise distance
         #   to the true optimum, which is (very) approximately stds[i] *
         #   dimension**0.5 / min(mueff, dimension) / 1.5 / 5 ~ std_i *
