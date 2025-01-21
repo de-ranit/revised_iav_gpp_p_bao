@@ -13,16 +13,29 @@ author: rde
 first created: Thu Jun 13 2024 14:58:41 CEST
 """
 
+import sys
 import os
 from pathlib import Path
 import importlib
+import glob
 import numpy as np
+import pandas as pd
 import bottleneck as bn
 import matplotlib.pyplot as plt
 import matplotlib
 import matplotlib.dates as mdates
 from matplotlib.lines import Line2D
 import seaborn as sns
+
+# add the path where modules of experiments are stored
+SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
+MAIN_DIR = os.path.dirname(SCRIPT_PATH)
+sys.path.append(MAIN_DIR)
+
+# import the parameter module to get intial parameter values
+from src.common.get_data import read_nc_data  # pylint: disable=C0413
+from src.common.get_data import df_to_dict  # pylint: disable=C0413
+from src.postprocess.prep_results import filter_data_up_dd  # pylint: disable=C0413
 
 # set up matplotlib to use LaTeX for rendering text
 matplotlib.rcParams["text.usetex"] = True
@@ -37,6 +50,73 @@ matplotlib.rcParams["font.sans-serif"] = "cmss10"
 plt.rcParams["pdf.fonttype"] = 42  # embedd fonts in pdf
 plt.rcParams["axes.edgecolor"] = "black"  # make the axes edge color black
 plt.rcParams["axes.linewidth"] = 2.0  # make the axes edge linewidth thicker
+
+
+def get_range_gpp_y(res_file, ip_data_path):
+    """
+    calculate the range of EC derived GPP values from different
+    variables.
+
+    Parameters:
+    -----------
+    res_file (dict): dictionary containing the results from the modelling experiment
+    ip_data_path (str): path to the forcing data
+
+    Returns:
+    --------
+    min_array (np.ndarray): minimum GPP value from different variables
+    max_array (np.ndarray): maximum GPP value from different variables
+    """
+
+    forcing_data_filename = glob.glob(
+        os.path.join(ip_data_path, f"{res_file['SiteID']}.*.nc")
+    )[0]
+    ip_df_dict = read_nc_data(forcing_data_filename, {"fPAR_var": "FPAR_FLUXNET_EO"})
+
+    gpp_y_coll_dict = {}
+    for parti_method in ["NT", "DT"]:
+        for qntl in [5, 16, 25, 50, 75, 84, 95]:
+            drop_gpp_data_indices = res_file[
+                f"GPP_drop_idx_{ip_df_dict['Temp_res']}"
+            ].astype(bool)
+
+            # create a df to resmaple the GPP values to annual scale
+            gpp_resample_df = pd.DataFrame(
+                {
+                    "Time": ip_df_dict["Time"],
+                    "GPP_obs": ip_df_dict[f"GPP_{parti_method}_{qntl}"],
+                    "GPP_sim": res_file[f"GPP_sim_{ip_df_dict['Temp_res']}"],
+                    "NEE_QC": ip_df_dict[f"NEE_QC_{parti_method}_{qntl}"],
+                    "drop_gpp_idx": ~drop_gpp_data_indices,
+                }
+            )
+
+            # resample to annual
+            gpp_df_y = gpp_resample_df.resample("Y", on="Time").mean()
+            gpp_df_y = gpp_df_y.reset_index()
+            gpp_y_dict = df_to_dict(gpp_df_y)
+            gpp_obs_y_filtered, _, time_y_filtered, _ = filter_data_up_dd(
+                gpp_y_dict
+            )  # exclude years with mostly bad data
+
+            # index of common years between annual GPP used for
+            # model eval and other GPP variables
+            common_idx = np.where(time_y_filtered == res_file["Time_yearly_filtered"])[
+                0
+            ]
+            common_gpp_sim_y = gpp_obs_y_filtered[common_idx]
+
+            gpp_y_coll_dict[f"GPP_{parti_method}_{qntl}_y"] = common_gpp_sim_y
+
+    gpp_y_coll_dict["GPP_NT_yearly_filtered"] = res_file["GPP_NT_yearly_filtered"]
+
+    stacked_gpp_obs_arrays = np.vstack(list(gpp_y_coll_dict.values()))
+
+    # get the range (min-max) of GPP from different variables
+    min_array = np.min(stacked_gpp_obs_arrays, axis=0)
+    max_array = np.max(stacked_gpp_obs_arrays, axis=0)
+
+    return min_array, max_array
 
 
 def get_qc_mod_perform(result_dict, model_name):
@@ -162,6 +242,7 @@ def get_qc_mod_perform(result_dict, model_name):
         "min_gpp_val": min_gpp_val,
     }
 
+
 def set_ticks_for_selected_subplots(axs, selected_indices):
     """
     hide subplot x axis ticks and only enable for given subplots
@@ -180,7 +261,16 @@ def set_ticks_for_selected_subplots(axs, selected_indices):
             axis="x", which="both", bottom=True, top=False, labelbottom=True
         )
 
-def create_ax_gpp_ts(axs, result_dict, qc_mod_perform_dict, model_name, subplot_seq):
+
+def create_ax_gpp_ts(
+    axs,
+    result_dict,
+    qc_mod_perform_dict,
+    min_gpp_arr,
+    max_gpp_arr,
+    model_name,
+    subplot_seq,
+):
     """
     create the subplots of GPP timeseries from different modelling experiments
 
@@ -190,6 +280,8 @@ def create_ax_gpp_ts(axs, result_dict, qc_mod_perform_dict, model_name, subplot_
     result_dict (dict): dictionary containing the results from the modelling experiment
     qc_mod_perform_dict (dict): dictionary containing the model performance metrics/ data
     to plot the bar indicating the good quality data
+    min_gpp_arr (np.ndarray): minimum GPP value from different variables
+    max_gpp_arr (np.ndarray): maximum GPP value from different variables
     model_name (str): name of the model (P_model or LUE_model)
     subplot_seq (str): subplot sequence (e.g. (a), (b), (c), (d))
 
@@ -198,23 +290,26 @@ def create_ax_gpp_ts(axs, result_dict, qc_mod_perform_dict, model_name, subplot_
     None
     """
 
-    marker_size = 70
+    marker_size = 30
     line_w = 2
 
-    # plot GPP
-    axs.scatter(
+    yerr = np.array(
+        [
+            result_dict["GPP_NT_yearly"][result_dict["good_gpp_y_idx"].astype(bool)]
+            - min_gpp_arr,
+            max_gpp_arr
+            - result_dict["GPP_NT_yearly"][result_dict["good_gpp_y_idx"].astype(bool)],
+        ]
+    )
+
+    axs.errorbar(
         result_dict["Time_yearly"][result_dict["good_gpp_y_idx"].astype(bool)],
         result_dict["GPP_NT_yearly"][result_dict["good_gpp_y_idx"].astype(bool)],
-        c="#E3BD6B",
-        marker="o",
-        s=marker_size,
-    )  # observed GPP
-    axs.plot(
-        result_dict["Time_yearly"][result_dict["good_gpp_y_idx"].astype(bool)],
-        result_dict["GPP_NT_yearly"][result_dict["good_gpp_y_idx"].astype(bool)],
+        yerr=yerr,
+        fmt="-o",
         c="#E3BD6B",
         linewidth=line_w,
-    )  # observed GPP
+    )  # obs GPP with uncertainty
     if model_name == "P_model":
         axs.scatter(
             result_dict["Time_yearly"][result_dict["good_gpp_y_idx"].astype(bool)],
@@ -302,7 +397,15 @@ def create_ax_gpp_ts(axs, result_dict, qc_mod_perform_dict, model_name, subplot_
     sns.despine(ax=axs, top=True, right=True)  # remove the top and right spines
 
 
-def plot_fig(path_coll, site_id, model_name, op_folder, filename_order, full_site_name):
+def plot_fig(
+    path_coll,
+    ip_data_path,
+    site_id,
+    model_name,
+    op_folder,
+    filename_order,
+    full_site_name,
+):
     """
     plot observed vs simulated GPP timeseries from different modelling experiments
 
@@ -334,6 +437,20 @@ def plot_fig(path_coll, site_id, model_name, op_folder, filename_order, full_sit
     glob_opti_res_dict = np.load(
         f"{path_coll['glob_opti']}/{site_id}_result.npy", allow_pickle=True
     ).item()
+
+    per_site_yr_min_gpp, per_site_yr_max_gpp = get_range_gpp_y(
+        per_site_yr_res_dict, ip_data_path
+    )
+    per_site_min_gpp, per_site_max_gpp = get_range_gpp_y(
+        per_site_res_dict, ip_data_path
+    )
+    per_site_iav_min_gpp, per_site_iav_max_gpp = get_range_gpp_y(
+        per_site_iav_res_dict, ip_data_path
+    )
+    per_pft_min_gpp, per_pft_max_gpp = get_range_gpp_y(per_pft_res_dict, ip_data_path)
+    glob_opti_min_gpp, glob_opti_max_gpp = get_range_gpp_y(
+        glob_opti_res_dict, ip_data_path
+    )
 
     # get the model performance metrics and data to plot the bar indicating the
     per_site_yr_qc_mod_perform_dict = get_qc_mod_perform(
@@ -379,45 +496,55 @@ def plot_fig(path_coll, site_id, model_name, op_folder, filename_order, full_sit
 
     # create the subplots
     create_ax_gpp_ts(
-        axs[0,0],
+        axs[0, 0],
         per_site_yr_res_dict,
         per_site_yr_qc_mod_perform_dict,
+        per_site_yr_min_gpp,
+        per_site_yr_max_gpp,
         model_name,
         r"\textbf{(a) Per site--year parameterization}",
     )
     # create the subplots
     create_ax_gpp_ts(
-        axs[0,1],
+        axs[0, 1],
         per_site_iav_res_dict,
         per_site_iav_qc_mod_perform_dict,
+        per_site_iav_min_gpp,
+        per_site_iav_max_gpp,
         model_name,
         r"\textbf{(b) Per site parameterization using} $\mathbf{Cost^{IAV}}$",
     )
     create_ax_gpp_ts(
-        axs[0,2],
+        axs[0, 2],
         per_site_res_dict,
         per_site_qc_mod_perform_dict,
+        per_site_min_gpp,
+        per_site_max_gpp,
         model_name,
         r"\textbf{(c) Per site parameterization}",
     )
     create_ax_gpp_ts(
-        axs[1,0],
+        axs[1, 0],
         per_pft_res_dict,
         per_pft_qc_mod_perform_dict,
+        per_pft_min_gpp,
+        per_pft_max_gpp,
         model_name,
         r"\textbf{(d) Per PFT parameterization}",
     )
     create_ax_gpp_ts(
-        axs[1,1],
+        axs[1, 1],
         glob_opti_res_dict,
         glob_opti_qc_mod_perform_dict,
+        glob_opti_min_gpp,
+        glob_opti_max_gpp,
         model_name,
         r"\textbf{(e) Global parameterization}",
     )
 
     set_ticks_for_selected_subplots(axs, [(0, 2), (1, 0), (1, 1)])
 
-    fig.delaxes(axs[1,2])  # remove the last subplot
+    fig.delaxes(axs[1, 2])  # remove the last subplot
 
     # create a legend
     legend_elements = [
@@ -532,14 +659,23 @@ if __name__ == "__main__":
         "glob_opti": result_paths.glob_opti_p_model_res_path,
     }
 
+    hr_ip_data_path = result_paths.hr_ip_data_path
+
     # plot the timeseries of GPP from AU-ASM (using P Model)
     plot_fig(
-        hr_p_model_res_path_coll, "AU-ASM", "P_model", "figures", "f06", "Alice Springs"
+        hr_p_model_res_path_coll,
+        hr_ip_data_path,
+        "AU-ASM",
+        "P_model",
+        "figures",
+        "f05",
+        "Alice Springs",
     )
 
     # plot the timeseries of GPP from US-Ne1 (using P Model)
     plot_fig(
         hr_p_model_res_path_coll,
+        hr_ip_data_path,
         "US-Ne1",
         "P_model",
         "supplement_figs",
@@ -557,7 +693,13 @@ if __name__ == "__main__":
     }
 
     plot_fig(
-        hr_lue_model_res_path_coll, "DE-Hai", "LUE_model", "figures", "f08", "Hainich"
+        hr_lue_model_res_path_coll,
+        hr_ip_data_path,
+        "DE-Hai",
+        "LUE_model",
+        "figures",
+        "f07",
+        "Hainich",
     )
 
     # store all the paths in a dict (for lue model in daily resolution)
@@ -569,9 +711,12 @@ if __name__ == "__main__":
         "glob_opti": result_paths.glob_opti_dd_lue_model_res_path,
     }
 
+    dd_ip_data_path = result_paths.dd_ip_data_path
+
     # plot the timeseries of GPP from DE-Hai (using LUE Model in daily resolution)
     plot_fig(
         dd_lue_model_res_path_coll,
+        dd_ip_data_path,
         "DE-Hai",
         "LUE_model",
         "supplement_figs",
