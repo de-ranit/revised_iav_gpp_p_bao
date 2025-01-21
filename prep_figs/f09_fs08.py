@@ -434,7 +434,7 @@ def plot_fig_main(p_model_res_path, lue_model_res_path):
         diff_dict_p,
         diff_dict_lue,
         "nse_diff_y",
-        "f08",
+        "f09",
         "figures",
     )
 

@@ -121,3 +121,10 @@ glob_opti_dd_lue_model_res_path = Path(
         "lue_my_first_exp/serialized_model_results/"
     )
 )
+
+hr_ip_data_path = Path(
+    "/path/to/hourly/forcing/data/in/nc/format"
+)
+dd_ip_data_path = Path(
+    "/path/to/daily/forcing/data/in/nc/format"
+)

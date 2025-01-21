@@ -267,12 +267,12 @@ def plot_fig_main(lue_hr_data_exp_path, lue_dd_data_exp_path):
     fig_path = Path("figures")
     os.makedirs(fig_path, exist_ok=True)
     plt.savefig(
-        f"{fig_path}/f06.png",
+        f"{fig_path}/f07.png",
         dpi=300,
         bbox_inches="tight",
     )
     plt.savefig(
-        f"{fig_path}/f06.pdf",
+        f"{fig_path}/f07.pdf",
         dpi=300,
         bbox_inches="tight",
     )

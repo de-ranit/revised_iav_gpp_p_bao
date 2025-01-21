@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-make a dot plot with percentage contributions of each factor to the sum of squares
-in ANOVA for NNSE (annual) and NNSE (hourly)
+prepare f03 - uncertainty analysis in annual GPP
 
 Note:
 Always run this script, after `cd` to the `prep_figs` directory
@@ -11,30 +10,39 @@ as the paths of result files are relative to this directory. The
 `prep_figs` directory should be a sub-directory of the main project directory.
 
 author: rde
-first created: Tue Aug 27 2024 16:33:43 CEST
+first created: Tue Jan 21 2025 16:57:23 CET
 """
-
 import os
+import sys
 from pathlib import Path
 import importlib
 import glob
-import pandas as pd
 import numpy as np
-import statsmodels.api as sm
-from statsmodels.formula.api import ols
-from scipy.stats import levene
-
 import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib.lines import Line2D
 import seaborn as sns
+import pandas as pd
+
+
+# add the path where modules of experiments are stored
+SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
+MAIN_DIR = os.path.dirname(SCRIPT_PATH)
+sys.path.append(MAIN_DIR)
+
+# import the parameter module to get intial parameter values
+from src.common.get_data import read_nc_data  # pylint: disable=C0413
+from src.common.get_data import df_to_dict  # pylint: disable=C0413
+from src.postprocess.prep_results import filter_data_up_dd  # pylint: disable=C0413
 
 # set up matplotlib to use LaTeX for rendering text
 matplotlib.rcParams["text.usetex"] = True
 matplotlib.rcParams["text.latex.preamble"] = (
     r"\renewcommand{\familydefault}{\sfdefault}"  # use sans-serif font
 )
-matplotlib.rcParams["text.latex.preamble"] = r"\usepackage{amsmath}"
+matplotlib.rcParams["text.latex.preamble"] = (
+    r"\usepackage{amsmath}"  # use amsmath package
+)
 
 # set the font to computer modern sans
 matplotlib.rcParams["font.family"] = "sans-serif"
@@ -44,198 +52,23 @@ plt.rcParams["axes.edgecolor"] = "black"  # make the axes edge color black
 plt.rcParams["axes.linewidth"] = 2.0  # make the axes edge linewidth thicker
 
 
-def determine_bioclim(pft, kg):
+def prep_data(exp_path, ip_data_path, is_p_model=False):
     """
-    determine the bioclimatic zone based on the PFT and KG
+    Prepare data for the uncertainty analysis. Aggregate several variables
+    of EC derived GPP to annual scale, and quality filter the data. Calculate range
+    of annual GPP obtained from various GPP variables and calculate how much of simulated
+    annual GPP is within the range
 
-    Parameters
-    ----------
-    pft (str) : plant functional type
-    kg (str) : Koppen-Geiger climate zone
+    Parameters:
+    -----------
+    exp_path (str) : path to the directory containing the model results
+    ip_data_path (str) : path to the directory containing the input data/ forcing data
+    is_p_model (bool) : whether the model is a P model or not
 
-    Returns
-    -------
-    bioclim (str) : bioclimatic zone
-    """
-    if pft in ["EBF", "ENF", "DBF", "DNF", "MF", "WSA", "OSH", "CSH"]:
-        bio = "forest"
-    elif pft in ["GRA", "SAV", "CRO", "WET"]:
-        bio = "grass"
-    elif pft == "SNO":
-        bio = "Polar"
-    else:
-        raise ValueError("PFT not recognized")
-
-    if (kg[0] == "A") & (bio == "forest"):
-        bioclim = "TropicalF"
-    elif (kg[0] == "A") & (bio == "grass"):
-        bioclim = "TropicalG"
-    elif (kg[0] == "B") & (bio == "forest"):
-        bioclim = "AridF"
-    elif (kg[0] == "B") & (bio == "grass"):
-        bioclim = "AridG"
-    elif (kg[0] == "C") & (bio == "forest"):
-        bioclim = "TemperateF"
-    elif (kg[0] == "C") & (bio == "grass"):
-        bioclim = "TemperateG"
-    elif (kg[0] == "D") & (bio == "forest"):
-        bioclim = "BorealF"
-    elif (kg[0] == "D") & (bio == "grass"):
-        bioclim = "BorealG"
-    elif kg[0] == "E":
-        bioclim = "Polar"
-    else:
-        raise ValueError(f"Bioclim could not be determined for {pft} and {kg}")
-
-    return bioclim
-
-
-def collect_data(
-    filtered_mod_res_file_list,
-    nse_list,
-    model_name_list,
-    opti_type_list,
-    input_timescale_list,
-    output_timescale_list,
-    site_id_list,
-    no_of_good_years_list,
-    pft_list,
-    kg_list,
-    bioclim_list,
-    lat_list,
-    lon_list,
-    model_name,
-    opti_name,
-    site_data_dict,
-    nse_var_name,
-):
-    """
-    collect the data for ANOVA analysis for NNSE
-
-    Parameters
-    ----------
-    filtered_mod_res_file_list (list) : list of files with serialized model results
-    nse_list (list) : list to store NSE values
-    model_name_list (list) : list to store model names
-    opti_type_list (list) : list to store optimization strategies
-    input_timescale_list (list) : list to store input timescales
-    output_timescale_list (list) : list to store output timescales
-    site_id_list (list) : list to store site IDs
-    no_of_good_years_list (list) : list to store number of good years
-    pft_list (list) : list to store plant functional types
-    kg_list (list) : list to store Koppen-Geiger climate zones
-    bioclim_list (list) : list to store bioclimatic zones
-    lat_list (list) : list to store latitudes
-    lon_list (list) : list to store longitudes
-    model_name (str) : model name
-    opti_name (str) : optimization strategy
-    site_data_dict (dict) : dictionary with site information
-    nse_var_name (str) : variable name for NSE
-
-    Returns
-    -------
-    nse_list (list) : list with NSE values
-    model_name_list (list) : list with model names
-    opti_type_list (list) : list with optimization strategies
-    input_timescale_list (list) : list with input timescales
-    output_timescale_list (list) : list with output timescales
-    site_id_list (list) : list with site IDs
-    no_of_good_years_list (list) : list with number of good years
-    pft_list (list) : list with plant functional types
-    kg_list (list) : list with Koppen-Geiger climate zones
-    bioclim_list (list) : list with bioclimatic zones
-    lat_list (list) : list with latitudes
-    lon_list (list) : list with longitudes
-
-    """
-
-    for res_file in filtered_mod_res_file_list:
-        result_dict = np.load(res_file, allow_pickle=True).item()
-        try:
-            nse_list.append(result_dict[nse_var_name]["NSE_Hourly"])
-            model_name_list.append(model_name)
-            opti_type_list.append(opti_name)
-            input_timescale_list.append(result_dict["Temp_res"])
-            output_timescale_list.append("Hourly")
-            site_id_list.append(result_dict["SiteID"])
-            no_of_good_years_list.append(len(result_dict["Time_yearly_filtered"]))
-            pft_list.append(result_dict["PFT"])
-            kg_list.append(result_dict["KG"])
-            bioclim_list.append(
-                determine_bioclim(result_dict["PFT"], result_dict["KG"])
-            )
-            lat_list.append(site_data_dict[result_dict["SiteID"]]["Lat"])
-            lon_list.append(site_data_dict[result_dict["SiteID"]]["Lon"])
-        except KeyError:
-            nse_list.append(np.nan)
-            model_name_list.append(model_name)
-            opti_type_list.append(opti_name)
-            input_timescale_list.append(result_dict["Temp_res"])
-            output_timescale_list.append("Hourly")
-            site_id_list.append(result_dict["SiteID"])
-            no_of_good_years_list.append(len(result_dict["Time_yearly_filtered"]))
-            pft_list.append(result_dict["PFT"])
-            kg_list.append(result_dict["KG"])
-            bioclim_list.append(
-                determine_bioclim(result_dict["PFT"], result_dict["KG"])
-            )
-            lat_list.append(site_data_dict[result_dict["SiteID"]]["Lat"])
-            lon_list.append(site_data_dict[result_dict["SiteID"]]["Lon"])
-
-        for op_timescale in ["d", "w", "m", "y"]:
-            nse_list.append(result_dict[nse_var_name][f"NSE_{op_timescale}"])
-            model_name_list.append(model_name)
-            opti_type_list.append(opti_name)
-            input_timescale_list.append(result_dict["Temp_res"])
-            if op_timescale == "d":
-                output_timescale_list.append("Daily")
-            elif op_timescale == "w":
-                output_timescale_list.append("Weekly")
-            elif op_timescale == "m":
-                output_timescale_list.append("Monthly")
-            elif op_timescale == "y":
-                output_timescale_list.append("Yearly")
-            site_id_list.append(result_dict["SiteID"])
-            no_of_good_years_list.append(len(result_dict["Time_yearly_filtered"]))
-            pft_list.append(result_dict["PFT"])
-            kg_list.append(result_dict["KG"])
-            bioclim_list.append(
-                determine_bioclim(result_dict["PFT"], result_dict["KG"])
-            )
-            lat_list.append(site_data_dict[result_dict["SiteID"]]["Lat"])
-            lon_list.append(site_data_dict[result_dict["SiteID"]]["Lon"])
-
-    return (
-        nse_list,
-        model_name_list,
-        opti_type_list,
-        input_timescale_list,
-        output_timescale_list,
-        site_id_list,
-        no_of_good_years_list,
-        pft_list,
-        kg_list,
-        bioclim_list,
-        lat_list,
-        lon_list,
-    )
-
-
-def prep_nse_data(exp_path, site_data_dict, model_name, opti_name, consider_p_hr=None):
-    """
-    prepare the data for ANOVA analysis for NNSE
-
-    Parameters
-    ----------
-    exp_path (str) : path to the serialized model results
-    site_data_dict (dict) : dictionary with site information
-    model_name (str) : model name
-    opti_name (str) : optimization strategy
-
-    Returns
-    -------
-    return_df (pd.DataFrame) : dataframe with the data for ANOVA analysis
-
+    Returns:
+    --------
+    return_dict (dict) : dictionary containing the 
+    fraction of simulated GPP within the min-max range
     """
 
     # find all the files with serialized model results
@@ -254,537 +87,387 @@ def prep_nse_data(exp_path, site_data_dict, model_name, opti_name, consider_p_hr
         )
     ]
 
-    nse_list = []
-    model_name_list = []
-    opti_type_list = []
-    input_timescale_list = []
-    output_timescale_list = []
-    site_id_list = []
-    no_of_good_years_list = []
-    pft_list = []
-    kg_list = []
-    bioclim_list = []
-    lat_list = []
-    lon_list = []
+    # collect the fraction of simulated GPP within the min-max range
+    frac_gpp_sim_within_min_max_list = []
+    frac_gpp_sim_no_moisture_within_min_max_list = []
 
-    if model_name == "p":
-        (
-            nse_list,
-            model_name_list,
-            opti_type_list,
-            input_timescale_list,
-            output_timescale_list,
-            site_id_list,
-            no_of_good_years_list,
-            pft_list,
-            kg_list,
-            bioclim_list,
-            lat_list,
-            lon_list,
-        ) = collect_data(
-            filtered_mod_res_file_list,
-            nse_list,
-            model_name_list,
-            opti_type_list,
-            input_timescale_list,
-            output_timescale_list,
-            site_id_list,
-            no_of_good_years_list,
-            pft_list,
-            kg_list,
-            bioclim_list,
-            lat_list,
-            lon_list,
-            model_name,
-            opti_name,
-            site_data_dict,
-            "NSE",
-        )
+    for (
+        file
+    ) in (
+        filtered_mod_res_file_list
+    ):  # only for sites where there is more than three good years
 
-        if consider_p_hr:
-            (
-                nse_list,
-                model_name_list,
-                opti_type_list,
-                input_timescale_list,
-                output_timescale_list,
-                site_id_list,
-                no_of_good_years_list,
-                pft_list,
-                kg_list,
-                bioclim_list,
-                lat_list,
-                lon_list,
-            ) = collect_data(
-                filtered_mod_res_file_list,
-                nse_list,
-                model_name_list,
-                opti_type_list,
-                input_timescale_list,
-                output_timescale_list,
-                site_id_list,
-                no_of_good_years_list,
-                pft_list,
-                kg_list,
-                bioclim_list,
-                lat_list,
-                lon_list,
-                "P_no_sm",
-                opti_name,
-                site_data_dict,
-                "NSE_no_moisture_Stress",
+        res_file = np.load(file, allow_pickle=True).item()
+
+        if ~np.isnan(res_file["NSE"]["NSE_y"]):
+            forcing_data_filename = glob.glob(
+                os.path.join(ip_data_path, f"{res_file['SiteID']}.*.nc")
+            )[0]
+            ip_df_dict = read_nc_data(
+                forcing_data_filename, {"fPAR_var": "FPAR_FLUXNET_EO"}
             )
+
+            gpp_y_coll_dict = {}
+            for parti_method in ["NT", "DT"]:
+                for qntl in [5, 16, 25, 50, 75, 84, 95]:
+                    drop_gpp_data_indices = res_file[
+                        f"GPP_drop_idx_{ip_df_dict['Temp_res']}"
+                    ].astype(bool)
+
+                    # create a df to resmaple the GPP values to annual scale
+                    gpp_resample_df = pd.DataFrame(
+                        {
+                            "Time": ip_df_dict["Time"],
+                            "GPP_obs": ip_df_dict[f"GPP_{parti_method}_{qntl}"],
+                            "GPP_sim": res_file[f"GPP_sim_{ip_df_dict['Temp_res']}"],
+                            "NEE_QC": ip_df_dict[f"NEE_QC_{parti_method}_{qntl}"],
+                            "drop_gpp_idx": ~drop_gpp_data_indices,
+                        }
+                    )
+
+                    # resample to annual
+                    gpp_df_y = gpp_resample_df.resample("Y", on="Time").mean()
+                    gpp_df_y = gpp_df_y.reset_index()
+                    gpp_y_dict = df_to_dict(gpp_df_y)
+                    gpp_obs_y_filtered, _, time_y_filtered, _ = filter_data_up_dd(
+                        gpp_y_dict
+                    )  # exclude years with mostly bad data
+
+                    # index of common years between annual GPP used for
+                    # model eval and other GPP variables
+                    common_idx = np.where(
+                        time_y_filtered == res_file["Time_yearly_filtered"]
+                    )[0]
+                    common_gpp_sim_y = gpp_obs_y_filtered[common_idx]
+
+                    gpp_y_coll_dict[f"GPP_{parti_method}_{qntl}_y"] = common_gpp_sim_y
+
+            gpp_y_coll_dict["GPP_NT_yearly_filtered"] = res_file[
+                "GPP_NT_yearly_filtered"
+            ]
+
+            stacked_gpp_obs_arrays = np.vstack(list(gpp_y_coll_dict.values()))
+
+            # get the range (min-max) of GPP from different variables
+            min_array = np.min(stacked_gpp_obs_arrays, axis=0)
+            max_array = np.max(stacked_gpp_obs_arrays, axis=0)
+
+            # calculate fraction of site years in a site within the range
+            mask_gpp_sim_within_min_max = (
+                res_file["GPP_sim_yearly_filtered"] >= min_array
+            ) & (res_file["GPP_sim_yearly_filtered"] <= max_array)
+            frac_gpp_sim_within_min_max = np.sum(mask_gpp_sim_within_min_max) / len(
+                mask_gpp_sim_within_min_max
+            )
+
+            frac_gpp_sim_within_min_max_list.append(frac_gpp_sim_within_min_max)
+
+            # if P-model; calculate the same for GPP simulated with no moisture stress
+            if is_p_model:
+                good_yr_mask = res_file["good_gpp_y_idx"].astype(bool)
+                mask_gpp_sim_within_min_max = (
+                    res_file["GPP_sim_no_moisture_yearly"][good_yr_mask] >= min_array
+                ) & (res_file["GPP_sim_no_moisture_yearly"][good_yr_mask] <= max_array)
+                frac_gpp_sim_within_min_max = np.sum(mask_gpp_sim_within_min_max) / len(
+                    mask_gpp_sim_within_min_max
+                )
+
+                frac_gpp_sim_no_moisture_within_min_max_list.append(
+                    frac_gpp_sim_within_min_max
+                )
+
+    # prepare the return dictionary
+    if is_p_model:
+        return_dict = {
+            "frac_within_min_max": np.array(frac_gpp_sim_within_min_max_list),
+            "frac_no_moisture_within_min_max": np.array(
+                frac_gpp_sim_no_moisture_within_min_max_list
+            ),
+        }
     else:
-        (
-            nse_list,
-            model_name_list,
-            opti_type_list,
-            input_timescale_list,
-            output_timescale_list,
-            site_id_list,
-            no_of_good_years_list,
-            pft_list,
-            kg_list,
-            bioclim_list,
-            lat_list,
-            lon_list,
-        ) = collect_data(
-            filtered_mod_res_file_list,
-            nse_list,
-            model_name_list,
-            opti_type_list,
-            input_timescale_list,
-            output_timescale_list,
-            site_id_list,
-            no_of_good_years_list,
-            pft_list,
-            kg_list,
-            bioclim_list,
-            lat_list,
-            lon_list,
-            model_name,
-            opti_name,
-            site_data_dict,
-            "NSE",
-        )
+        return_dict = {
+            "frac_within_min_max": np.array(frac_gpp_sim_within_min_max_list)
+        }
 
-    # create a dataframe with all the data
-    return_df = pd.DataFrame(
-        [
-            nse_list,
-            model_name_list,
-            opti_type_list,
-            input_timescale_list,
-            output_timescale_list,
-            site_id_list,
-            no_of_good_years_list,
-            pft_list,
-            kg_list,
-            bioclim_list,
-            lat_list,
-            lon_list,
-        ]
-    ).T
-
-    col_names = [
-        "NSE",
-        "Model_name",
-        "Opti_type",
-        "Input_timescale",
-        "Output_timescale",
-        "SiteID",
-        "No_of_good_years",
-        "PFT",
-        "KG",
-        "Bioclim",
-        "Lat",
-        "Lon",
-    ]
-    return_df.columns = col_names
-
-    return return_df
+    return return_dict
 
 
-def homoscedasticity_levene_test(df, args_list):
-    """
-    Do Levene test to check for homoscedasticity
-
-    Parameters
-    ----------
-    df (pd.DataFrame) : dataframe with the data for ANOVA analysis
-    args_list (list) : list of factors to group the data by
-
-    Returns
-    -------
-    None
-    """
-    grouped_nse = df.groupby(args_list)
-
-    groups_nse = [group["NSE"] for name, group in grouped_nse]
-    _, p_nse_y = levene(*groups_nse)
-
-    if p_nse_y > 0.05:
-        print(f"The variances are equal across groups (p value: {p_nse_y}).")
-    else:
-        print(f"The variances are not equal across groups (p value: {p_nse_y}).")
-
-
-def n_way_anova(data, target, anova_type, *args):
-    """
-    perform N-way ANOVA
-
-    Parameters
-    ----------
-    data (pd.DataFrame) : dataframe with the data for ANOVA analysis
-    target (str) : target variable
-    anova_type (str) : type of ANOVA to perform
-    args (list) : list of factors to group the data by
-
-    Returns
-    -------
-    anova_results (pd.DataFrame) : ANOVA results
-    """
-
-    anova_string_list = []
-    for idx, arg in enumerate(args):
-        if idx == 0:
-            anova_string_list.append(f"C({arg})")
-        else:
-            if anova_type == "interaction":
-                anova_string_list.append(f"* C({arg})")
-            else:
-                anova_string_list.append(f"+ C({arg})")
-
-    anova_string = " ".join(anova_string_list)
-    model = ols(f"{target} ~ {anova_string}", data=data).fit()
-    anova_results = sm.stats.anova_lm(model, typ=2)
-
-    return anova_results
-
-
-def percentage_ss_contrib(anova_results_df, factors_list):
-    """
-    calculate the percentage contribution of each factor to the sum of squares
-
-    Parameters
-    ----------
-    anova_results_df (pd.DataFrame) : ANOVA results
-    factors_list (list) : list of factors to calculate the percentage contribution for
-
-    Returns
-    -------
-    perc_factor_dict (dict) : percentage contribution of each factor to NNSE
-    """
-    ss_factor_dict = {}
-    for factors in factors_list:
-        if factors == "Residual":
-            ss_factor_dict[factors] = anova_results_df.loc["Residual", "sum_sq"]
-        else:
-            ss_factor_dict[factors] = anova_results_df.loc[f"C({factors})", "sum_sq"]
-
-    # Calculate total sum of squares (excluding residuals)
-    total_ss = []
-    for ss in ss_factor_dict.values():
-        total_ss.append(ss)
-    total_ss = sum(total_ss)
-
-    perc_factor_dict = {}
-    for factor_name, factor_ss in ss_factor_dict.items():
-        perc_factor_dict[factor_name] = (factor_ss / total_ss) * 100
-
-    return perc_factor_dict
-
-
-def main_prep_nse_anova_tab(
-    hr_p_path, hr_lue_path, dd_lue_path, site_data_dict, consider_p_hr
+def plot_axs(
+    ax, frac_syr, frac_allyr, frac_allyr_iav, frac_pft, frac_glob, title, bw_adjust, cut
 ):
     """
-    prepare the data for ANOVA analysis for NNSE and perform the ANOVA
+    plot the KDE of fraction of site years within range of GPP for different experiments
+    Parameters:
+    -----------
+    ax (matplotlib axis) : axis to plot the histogram
+    frac_syr (np.array) : fraction of site years within range of
+    GPP for per site--year parameterization
+    frac_allyr (np.array) : fraction of site years within range of GPP for per site parameterization
+    frac_allyr_iav (np.array) : fraction of site years within range
+    of GPP for per site parameterization using IAV
+    frac_pft (np.array) : fraction of site years within range of GPP for per PFT parameterization
+    frac_glob (np.array) : fraction of site years within range of GPP for global parameterization
+    title (str) : title of the plot
+    bw_adjust (float) : bandwidth adjustment for the KDE
+    cut (float) : cut off value for the KDE
 
-    Parameters
-    ----------
-    hr_p_path (dict) : dictionary with paths to the serialized model results for p model
-    hr_lue_path (dict) : dictionary with paths to the serialized model results for lue model
-    dd_lue_path (dict) : dictionary with paths to the serialized model results for lue model
-    when optimized at daily resolution
-    site_data_dict (dict) : dictionary with site information
-    consider_p_hr (bool) : whether to consider the p model with no sm at hourly resolution
-
-    Returns
-    -------
-    perc_factor_nse_y_dict (dict) : percentage contribution of each factor to NNSE (annual)
-    perc_factor_nse_hr_dict (dict) : percentage contribution of each factor to NNSE (hourly)
+    Returns:
+    --------
+    dict : dictionary containing the mean fraction for each optimization type
 
     """
 
-    p_model_hr_coll = {}
-    for exp, exp_path in hr_p_path.items():
-        p_model_hr_coll[exp] = prep_nse_data(
-            exp_path, site_data_dict, "p", exp, consider_p_hr
-        )
-
-    lue_model_hr_coll = {}
-    for exp, exp_path in hr_lue_path.items():
-        lue_model_hr_coll[exp] = prep_nse_data(exp_path, site_data_dict, "lue", exp)
-
-    lue_model_dd_coll = {}
-    for exp, exp_path in dd_lue_path.items():
-        lue_model_dd_coll[exp] = prep_nse_data(
-            exp_path, site_data_dict, "lue", exp, consider_p_hr
-        )
-
-    concat_df_list = []
-    for nse_dict in [p_model_hr_coll, lue_model_hr_coll, lue_model_dd_coll]:
-        for exp_df in nse_dict.values():
-            concat_df_list.append(exp_df)
-
-    main_nse_anova_df = pd.concat(concat_df_list).reset_index(drop=True)
-
-    # subset the data for ANOVA analysis to find contribution of each factor
-    # to annual NNSE
-    nse_y_anova_df = main_nse_anova_df[
-        (main_nse_anova_df["Input_timescale"] == "Hourly")
-        & (main_nse_anova_df["Output_timescale"] == "Yearly")
-        & (main_nse_anova_df["NSE"].notnull())
-    ].copy()
-    nse_y_anova_df["NSE"] = nse_y_anova_df["NSE"].astype(float)
-    nse_y_anova_df["Lat"] = nse_y_anova_df["Lat"].astype(float)
-    nse_y_anova_df["Lon"] = nse_y_anova_df["Lon"].astype(float)
-
-    print("anova_results_nse_y")
-    print("________________________")
-    nse_y_anova_df["NSE"] = 1.0 / (2.0 - nse_y_anova_df["NSE"])
-    # do a Levene test to check for homoscedasticity
-    homoscedasticity_levene_test(
-        nse_y_anova_df, ["Model_name", "Opti_type", "PFT", "KG", "Bioclim"]
+    # plot the histograms and KDE - but make histogram invisible and only show KDE
+    sns.histplot(
+        x=frac_syr,
+        stat="percent",
+        kde=True,
+        kde_kws={"bw_adjust": bw_adjust, "cut": cut, "clip": (0.0, 1.0)},
+        color="white",
+        edgecolor="white",
+        binrange=(0, 1.0),
+        binwidth=0.1,
+        ax=ax,
     )
-    # perform the N-way ANOVA
-    anova_results_nse_y = n_way_anova(
-        nse_y_anova_df,
-        "NSE",
-        # "interaction",
-        "no_interaction",
-        "Model_name",
-        "Opti_type",
-        # "SiteID",
-        "No_of_good_years",
-        "PFT",
-        "KG",
-        "Bioclim",
-        # "Lat",
-        # "Lon",
+    ax.lines[0].set_color("#56B4E9")
+
+    sns.histplot(
+        x=frac_allyr,
+        stat="percent",
+        kde=True,
+        kde_kws={"bw_adjust": bw_adjust, "cut": cut, "clip": (0.0, 1.0)},
+        binrange=(0, 1.0),
+        binwidth=0.1,
+        ax=ax,
+        color="white",
+        edgecolor="white",
     )
+    ax.lines[1].set_color("#009E73")
 
-    # print the ANOVA results
-    print(anova_results_nse_y)
-
-    # calculate the percentage contribution of each factor to the sum of squares
-    percentage_factor_nse_y_dict = percentage_ss_contrib(
-        anova_results_nse_y,
-        ["Model_name", "Opti_type", "No_of_good_years", "PFT", "KG", "Bioclim"],
-    )  # , 'Residual'])
-
-    ########################################################################################
-    # subset the data for ANOVA analysis to find contribution of each factor
-    # to hourly NNSE
-    nse_hr_anova_df = main_nse_anova_df[
-        (main_nse_anova_df["Input_timescale"] == "Hourly")
-        & (main_nse_anova_df["Output_timescale"] == "Hourly")
-        & (main_nse_anova_df["NSE"].notnull())
-    ].copy()
-    nse_hr_anova_df["NSE"] = nse_hr_anova_df["NSE"].astype(float)
-    nse_hr_anova_df["Lat"] = nse_hr_anova_df["Lat"].astype(float)
-    nse_hr_anova_df["Lon"] = nse_hr_anova_df["Lon"].astype(float)
-
-    print("anova_results_nse_hr")
-    print("________________________")
-    nse_hr_anova_df["NSE"] = 1.0 / (2.0 - nse_hr_anova_df["NSE"])
-
-    # do a Levene test to check for homoscedasticity
-    homoscedasticity_levene_test(
-        nse_hr_anova_df, ["Model_name", "Opti_type", "PFT", "KG", "Bioclim"]
+    sns.histplot(
+        x=frac_pft,
+        stat="percent",
+        kde=True,
+        kde_kws={"bw_adjust": bw_adjust, "cut": cut, "clip": (0.0, 1.0)},
+        binrange=(0, 1.0),
+        binwidth=0.1,
+        ax=ax,
+        color="white",
+        edgecolor="white",
     )
+    ax.lines[2].set_color("#BBBBBB")
 
-    # perform the N-way ANOVA for hourly NNSE
-    anova_results_nse_hr = n_way_anova(
-        nse_hr_anova_df,
-        "NSE",
-        # "interaction",
-        "no_interaction",
-        "Model_name",
-        "Opti_type",
-        # "SiteID",
-        "No_of_good_years",
-        "PFT",
-        "KG",
-        "Bioclim",
-        # "Lat",
-        # "Lon",
+    sns.histplot(
+        x=frac_glob,
+        stat="percent",
+        kde=True,
+        kde_kws={"bw_adjust": bw_adjust, "cut": cut, "clip": (0.0, 1.0)},
+        binrange=(0, 1.0),
+        binwidth=0.1,
+        ax=ax,
+        color="white",
+        edgecolor="white",
     )
+    ax.lines[3].set_color("#CC79A7")
 
-    # print the ANOVA results
-    print(anova_results_nse_hr)
-
-    # calculate the percentage contribution of each factor to the sum of squares
-    percentage_factor_nse_hr_dict = percentage_ss_contrib(
-        anova_results_nse_hr,
-        ["Model_name", "Opti_type", "No_of_good_years", "PFT", "KG", "Bioclim"],
+    sns.histplot(
+        x=frac_allyr_iav,
+        stat="percent",
+        kde=True,
+        kde_kws={"bw_adjust": bw_adjust, "cut": cut, "clip": (0.0, 1.0)},
+        binrange=(0, 1.0),
+        binwidth=0.1,
+        ax=ax,
+        color="white",
+        edgecolor="white",
     )
+    ax.lines[4].set_color("#E6C300")
 
-    return percentage_factor_nse_y_dict, percentage_factor_nse_hr_dict
+    ax.axvline(x=np.mean(frac_syr), linestyle=":", color="#56B4E9")
+    ax.axvline(x=np.mean(frac_allyr), linestyle=":", color="#009E73")
+    ax.axvline(x=np.mean(frac_pft), linestyle=":", color="#BBBBBB")
+    ax.axvline(x=np.mean(frac_glob), linestyle=":", color="#CC79A7")
+    ax.axvline(x=np.mean(frac_allyr_iav), linestyle=":", color="#E6C300")
+
+    # set the axis properties
+    ax.set_xticks(np.linspace(0.0, 1.0, 6))
+    ax.set_xticklabels([round(x, 1) for x in np.linspace(0.0, 1.0, 6).tolist()])
+    ax.tick_params(axis="both", which="major", labelsize=26.0)
+    ax.tick_params(axis="x", labelrotation=45)
+    ax.set_ylabel("")
+    ax.set_title(f"{title} ({len(frac_syr)})", size=30)
+
+    sns.despine(ax=ax, top=True, right=True)
+
+    return {
+        "syr_med": np.mean(frac_syr),
+        "nnse_allyr_iav_med": np.mean(frac_allyr_iav),
+        "allyr_med": np.mean(frac_allyr),
+        "pft_med": np.mean(frac_pft),
+        "glob_med": np.mean(frac_glob),
+    }
 
 
-def make_fig(
-    ss_perc_nse_y_dict_incl_no_sm_p,
-    ss_perc_nse_hr_dict_incl_no_sm_p,
-    ss_perc_nse_y_dict,
-    ss_perc_nse_hr_dict,
+def plot_fig_main(
+    hr_p_model_res_path_coll,
+    hr_bao_model_res_path_coll,
+    dd_bao_model_res_path_coll,
+    ip_data_path,
+    ip_data_path_dd,
 ):
     """
-    make a dot plot showing the percentage contributions of each factor
-    to the sum of squares in ANOVA for NNSE (annual) and NNSE (hourly)
+    prepare the data and plot the figure
 
-    Parameters
-    ----------
-    ss_perc_nse_y_dict_incl_no_sm_p (dict) : percentage contribution of each factor to NNSE (annual)
-    including P-model with no moisture
-    ss_perc_nse_hr_dict_incl_no_sm_p (dict) : percentage contribution of each factor to NNSE (hourly)
-    including P-model with no moisture
-    ss_perc_nse_y_dict (dict) : percentage contribution of each factor to NNSE (annual)
-    ss_perc_nse_hr_dict (dict) : percentage contribution of each factor to NNSE (hourly)
+    Parameters:
+    -----------
+    hr_p_model_res_path_coll (dict) : dictionary containing the paths to the results of P model
+    hr_bao_model_res_path_coll (dict) : dictionary containing the paths to the results of Bao model
+    calibrated using hourly data
+    dd_bao_model_res_path_coll (dict) : dictionary containing the paths to the results of Bao model
+    calibrated using daily data
+    ip_data_path (str) : path to the directory containing the input data/ forcing data at hourly
+    resolution
+    ip_data_path_dd (str) : path to the directory containing the input data/ forcing data at daily
+    resolution
 
-    Returns
-    -------
+    Returns:
+    --------
     None
+
     """
 
-    data_dicts_list = [
-        ss_perc_nse_y_dict,
-        ss_perc_nse_hr_dict,
-        ss_perc_nse_y_dict_incl_no_sm_p,
-        ss_perc_nse_hr_dict_incl_no_sm_p,
-    ]
-    dict_name_list = [
-        "Annual NNSE\n" + r"(excluding P$_{\text{hr}}$ model)",
-        "Hourly NNSE\n" + r"(excluding P$_{\text{hr}}$ model)",
-        "Annual NNSE\n" + r"(including P$_{\text{hr}}$ model)",
-        "Hourly NNSE\n" + r"(including P$_{\text{hr}}$ model)",
-    ]
-    dict_keys = list(ss_perc_nse_y_dict_incl_no_sm_p.keys())
-    colors = ["#3498db", "#BBBBBB", "#2ecc71", "#f1c40f", "#9b59b6", "#34495e"]
+    # prepare the data
+    hr_p_model_dict = {}
+    for exp in hr_p_model_res_path_coll.keys():
+        hr_p_model_dict[exp] = prep_data(
+            hr_p_model_res_path_coll[exp], ip_data_path, True
+        )
 
-    # set the figure size
-    fig_width = 8  # Width in inches
-    # fig_height = fig_width * (3 / 4)
-    fig_height = 5
+    hr_bao_model_dict = {}
+    for exp in hr_bao_model_res_path_coll.keys():
+        hr_bao_model_dict[exp] = prep_data(
+            hr_bao_model_res_path_coll[exp], ip_data_path
+        )
 
-    _, axs = plt.subplots(figsize=(fig_width, fig_height))
+    dd_bao_model_dict = {}
+    for exp in dd_bao_model_res_path_coll.keys():
+        dd_bao_model_dict[exp] = prep_data(
+            dd_bao_model_res_path_coll[exp], ip_data_path_dd
+        )
 
-    for i, d in enumerate(data_dicts_list):
-        for j, key in enumerate(dict_keys):
-            axs.plot(d[key], i, "o", color=colors[j], markersize=8, alpha=0.8)
+    # prepare the figure
+    fig_width = 12
+    fig_height = 9
 
-    # Set y-axis labels
-    axs.set_yticks([0, 1, 2, 3])
-    axs.set_yticklabels(dict_name_list)
+    fig, axs = plt.subplots(
+        ncols=2, nrows=2, figsize=(fig_width, fig_height), sharex=True, sharey=True
+    )
 
-    # Set labels
-    axs.set_xlabel(r"Percentage contribution to sum of squares [\%]", fontsize=22)
-    axs.set_ylabel("Model performances [-]", fontsize=22)
+    hr_p_frac_dict = plot_axs(
+        axs[0, 0],
+        hr_p_model_dict["per_site_yr"]["frac_within_min_max"],
+        hr_p_model_dict["per_site"]["frac_within_min_max"],
+        hr_p_model_dict["per_site_iav"]["frac_within_min_max"],
+        hr_p_model_dict["per_pft"]["frac_within_min_max"],
+        hr_p_model_dict["glob_opti"]["frac_within_min_max"],
+        r"(a) P$^{\text{W}}_{\text{hr}}$ model",
+        1.0,
+        3,
+    )
 
-    axs.tick_params(axis="both", which="major", labelsize=18)
+    hr_p_no_sm_frac_dict = plot_axs(
+        axs[0, 1],
+        hr_p_model_dict["per_site_yr"]["frac_no_moisture_within_min_max"],
+        hr_p_model_dict["per_site"]["frac_no_moisture_within_min_max"],
+        hr_p_model_dict["per_site_iav"]["frac_no_moisture_within_min_max"],
+        hr_p_model_dict["per_pft"]["frac_no_moisture_within_min_max"],
+        hr_p_model_dict["glob_opti"]["frac_no_moisture_within_min_max"],
+        r"(b) P$_{\text{hr}}$ model",
+        1.0,
+        3,
+    )
 
-    # create a legend
+    hr_bao_frac_dict = plot_axs(
+        axs[1, 0],
+        hr_bao_model_dict["per_site_yr"]["frac_within_min_max"],
+        hr_bao_model_dict["per_site"]["frac_within_min_max"],
+        hr_bao_model_dict["per_site_iav"]["frac_within_min_max"],
+        hr_bao_model_dict["per_pft"]["frac_within_min_max"],
+        hr_bao_model_dict["glob_opti"]["frac_within_min_max"],
+        r"(c) Bao$_{\text{hr}}$ model",
+        1.0,
+        3,
+    )
+
+    dd_bao_frac_dict = plot_axs(
+        axs[1, 1],
+        dd_bao_model_dict["per_site_yr"]["frac_within_min_max"],
+        dd_bao_model_dict["per_site"]["frac_within_min_max"],
+        dd_bao_model_dict["per_site_iav"]["frac_within_min_max"],
+        dd_bao_model_dict["per_pft"]["frac_within_min_max"],
+        dd_bao_model_dict["glob_opti"]["frac_within_min_max"],
+        r"(d) Bao$_{\text{dd}}$ model",
+        1.0,
+        3,
+    )
+
+    fig.supxlabel(
+        r"Fraction of site--year per site within range of $\text{GPP}_{\text{EC}}$ [-]",
+        y=-0.03,
+        fontsize=34,
+    )
+    fig.supylabel("Fraction of" + r" sites [\%]", fontsize=34)
+
+    # Adding legend manually
+    colors = ["#56B4E9", "#E6C300", "#009E73", "#BBBBBB", "#CC79A7"]
     legend_elements = [
         Line2D(
             [0],
             [0],
-            marker="o",
+            marker="s",
             color="w",
-            label="Model",
-            markerfacecolor="#3498db",
-            markersize=10,
-            alpha=0.8,
-        ),
-        Line2D(
-            [0],
-            [0],
-            marker="o",
-            color="w",
-            label="Parameterization strategy",
-            markerfacecolor="#BBBBBB",
-            markersize=10,
-            alpha=0.8,
-        ),
-        Line2D(
-            [0],
-            [0],
-            marker="o",
-            color="w",
-            label="Number of good site years",
-            markerfacecolor="#2ecc71",
-            markersize=10,
-            alpha=0.8,
-        ),
-        Line2D(
-            [0],
-            [0],
-            marker="o",
-            color="w",
-            label="Plant--functional types (PFT)",
-            markerfacecolor="#f1c40f",
-            markersize=10,
-            alpha=0.8,
-        ),
-        Line2D(
-            [0],
-            [0],
-            marker="o",
-            color="w",
-            label="Köppen--Geiger climate classes (KG)",
-            markerfacecolor="#9b59b6",
-            markersize=10,
-            alpha=0.8,
-        ),
-        Line2D(
-            [0],
-            [0],
-            marker="o",
-            color="w",
-            label=r"Climate--vegetation type",
-            markerfacecolor="#34495e",
-            markersize=10,
-            alpha=0.8,
-        ),
+            label=opti_type,
+            markerfacecolor=colors[i],
+            markersize=25,
+        )
+        for i, opti_type in enumerate(
+            [
+                r"per site--year parameterization",
+                r"per site parameterization using $Cost^{IAV}$",
+                "per site parameterization",
+                "per PFT parameterization",
+                "global parameterization",
+            ]
+        )
     ]
 
     plt.legend(
         handles=legend_elements,
-        fontsize=18,
+        fontsize=24,
         loc="lower center",
-        ncol=3,
+        ncol=2,
         frameon=True,
-        bbox_to_anchor=(0.4, -0.49),
-        labelspacing=0.8,
-        handlelength=0.2,
-        handletextpad=0.8,
-        borderpad=0.5,
+        bbox_to_anchor=(-0.1, -1.0),
     )
 
-    sns.despine(ax=axs, top=True, right=True)
-
-    # save the figure
     fig_path = Path("figures")
     os.makedirs(fig_path, exist_ok=True)
-    plt.savefig("./figures/f03.png", dpi=300, bbox_inches="tight")
-    plt.savefig("./figures/f03.pdf", dpi=300, bbox_inches="tight")
+    plt.savefig("./figures/f03_new.png", dpi=300, bbox_inches="tight")
+    plt.savefig("./figures/f03_new.pdf", dpi=300, bbox_inches="tight")
     plt.close("all")
+
+    # get the mean fraction of simulated GPP within the range for each optimization type
+    unc_df = pd.DataFrame(
+        [hr_p_frac_dict, hr_p_no_sm_frac_dict, hr_bao_frac_dict, dd_bao_frac_dict]
+    )
+    print(unc_df.to_latex(index=False, float_format="%.3f"))
 
 
 if __name__ == "__main__":
+    # get the result paths collection module
     result_paths = importlib.import_module("result_path_coll")
-    # store all the paths in a dict (for p model)
-    hr_p_model_res_path_coll = {
+
+    hr_p_model_res_path_coll_dict = {
         "per_site_yr": result_paths.per_site_yr_p_model_res_path,
         "per_site": result_paths.per_site_p_model_res_path,
         "per_site_iav": result_paths.per_site_p_model_res_path_iav,
@@ -808,44 +491,13 @@ if __name__ == "__main__":
         "glob_opti": result_paths.glob_opti_dd_lue_model_res_path,
     }
 
-    # read the csv file with ancillary site info and collect in a dictionary
-    site_info = pd.read_csv("../site_info/SiteInfo_BRKsite_list.csv", low_memory=False)
-    site_aux_data_dict = {}
-    site_list = []
-    for row in site_info.itertuples():
-        site_aux_data_dict[row.SiteID] = {
-            "Lat": row.Lat,
-            "Lon": row.Lon,
-            "KG": row.KG,
-            "PFT": row.PFT,
-            "elev": row.elev,
-        }
-        site_list.append(row.SiteID)
+    hr_ip_data_path = result_paths.hr_ip_data_path
+    dd_ip_data_path = result_paths.dd_ip_data_path
 
-    # percentage contributions of each of the factors in sum of squares
-    # in ANOVA for NNSE (annual) and NNSE (hourly)
-    perc_factor_nse_y_dict_incl_p_no_sm, perc_factor_nse_hr_dict_incl_p_no_sm = (
-        main_prep_nse_anova_tab(
-            hr_p_model_res_path_coll,
-            hr_lue_model_res_path_coll,
-            dd_lue_model_res_path_coll,
-            site_aux_data_dict,
-            consider_p_hr=True,
-        )
-    )
-
-    perc_factor_nse_y_dict, perc_factor_nse_hr_dict = main_prep_nse_anova_tab(
-        hr_p_model_res_path_coll,
+    plot_fig_main(
+        hr_p_model_res_path_coll_dict,
         hr_lue_model_res_path_coll,
         dd_lue_model_res_path_coll,
-        site_aux_data_dict,
-        consider_p_hr=False,
-    )
-
-    # plot the pie chart with the percentage contributions
-    make_fig(
-        perc_factor_nse_y_dict_incl_p_no_sm,
-        perc_factor_nse_hr_dict_incl_p_no_sm,
-        perc_factor_nse_y_dict,
-        perc_factor_nse_hr_dict,
+        hr_ip_data_path,
+        dd_ip_data_path,
     )

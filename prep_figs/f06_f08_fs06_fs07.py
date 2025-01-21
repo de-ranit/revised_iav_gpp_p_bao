@@ -534,7 +534,7 @@ if __name__ == "__main__":
 
     # plot the timeseries of GPP from AU-ASM (using P Model)
     plot_fig(
-        hr_p_model_res_path_coll, "AU-ASM", "P_model", "figures", "f05", "Alice Springs"
+        hr_p_model_res_path_coll, "AU-ASM", "P_model", "figures", "f06", "Alice Springs"
     )
 
     # plot the timeseries of GPP from US-Ne1 (using P Model)
@@ -557,7 +557,7 @@ if __name__ == "__main__":
     }
 
     plot_fig(
-        hr_lue_model_res_path_coll, "DE-Hai", "LUE_model", "figures", "f07", "Hainich"
+        hr_lue_model_res_path_coll, "DE-Hai", "LUE_model", "figures", "f08", "Hainich"
     )
 
     # store all the paths in a dict (for lue model in daily resolution)
