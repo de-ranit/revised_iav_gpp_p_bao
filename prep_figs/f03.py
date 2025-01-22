@@ -67,7 +67,7 @@ def prep_data(exp_path, ip_data_path, is_p_model=False):
 
     Returns:
     --------
-    return_dict (dict) : dictionary containing the 
+    return_dict (dict) : dictionary containing the
     fraction of simulated GPP within the min-max range
     """
 
@@ -109,7 +109,7 @@ def prep_data(exp_path, ip_data_path, is_p_model=False):
 
             gpp_y_coll_dict = {}
             for parti_method in ["NT", "DT"]:
-                for qntl in [5, 16, 25, 50, 75, 84, 95]:
+                for qntl in [5, 95]:
                     drop_gpp_data_indices = res_file[
                         f"GPP_drop_idx_{ip_df_dict['Temp_res']}"
                     ].astype(bool)
