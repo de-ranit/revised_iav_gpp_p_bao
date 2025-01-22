@@ -110,8 +110,8 @@ De, R. (2024). Scripts for analyses presented in "Addressing challenges in simul
 This work is licensed under a
 [MIT License][MIT License].
 
-[MIT License]: https://spdx.org/licenses/MIT.html
+[MIT License]: https://github.com/de-ranit/iav_gpp_p_bao/blob/main/LICENSE
 [MIT-License-shield]: https://img.shields.io/badge/License-MIT-blue
-<a href="https://spdx.org/licenses/MIT.html">
+<a href="https://github.com/de-ranit/iav_gpp_p_bao/blob/main/LICENSE">
 <img src=https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/i/7195e121-eded-45cf-9aab-909deebd81b2/d9ur2lg-28410b47-58fd-4a48-9b67-49c0f56c68ce.png alt="MIT-License-image" width="100"/>
 </a>
