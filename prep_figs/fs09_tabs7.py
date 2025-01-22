@@ -19,19 +19,19 @@ from pathlib import Path
 import importlib
 import glob
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import matplotlib
 import seaborn as sns
+from scipy import stats
 
 # set up matplotlib to use LaTeX for rendering text
 matplotlib.rcParams["text.usetex"] = True
 matplotlib.rcParams["text.latex.preamble"] = (
     r"\renewcommand{\familydefault}{\sfdefault}"  # use sans-serif font
 )
-matplotlib.rcParams["text.latex.preamble"] = (
-    r"\usepackage{amsmath}"  # use amsmath font
-)
+matplotlib.rcParams["text.latex.preamble"] = r"\usepackage{amsmath}"  # use amsmath font
 
 # set the font to computer modern sans
 matplotlib.rcParams["font.family"] = "sans-serif"
@@ -175,6 +175,53 @@ def prep_data(res_path_dict):
     return bioclim_mod_perform_dict
 
 
+def plot_stat_significance(in_dict):
+    """
+    after https://rowannicholls.github.io/python/graphs/ax_based/boxplots_significance.html
+
+    test if model performance distribution for a given PFT from
+    two different parameterization methods are significantly different
+    using non-parametric Kolmogorov-Smirnov test
+
+    Parameters:
+    -----------
+    in_dict (dict) : dict containing NSE from different parameterization
+    methods of a certain Model per PFT
+
+    Returns:
+    --------
+    stat_pft_dict (dict) : dict containing significant combinations
+    of NSE from different parameterization methods of a certain Model
+    per PFT and corresponding p-values
+    """
+
+    pft_dict = {}
+
+    for pft, val in in_dict.items():
+        nnse_list_arr = []
+        for _, nse in val.items():
+            nnse_list_arr.append(1.0 / (2.0 - np.array(nse)))
+        pft_dict[pft] = nnse_list_arr
+
+    stat_pft_dict = {}
+    for pft, val in pft_dict.items():
+        significant_combinations = []
+        ls = list(range(1, len(val) + 1))
+        combinations = [
+            (ls[x], ls[x + y]) for y in reversed(ls) for x in range((len(ls) - y))
+        ]
+        for c in combinations:
+            data1 = val[c[0] - 1]
+            data2 = val[c[1] - 1]
+            _, p_val = stats.ks_2samp(data1, data2)
+            if p_val < 0.05:
+                significant_combinations.append([c, p_val])
+
+        stat_pft_dict[pft] = significant_combinations
+
+    return stat_pft_dict
+
+
 def plot_axs(ax, data_dict, title):
     """
     prepare the subplots for the figure
@@ -196,6 +243,8 @@ def plot_axs(ax, data_dict, title):
 
     # colors for the boxplots (of each optimization experiment)
     colors = ["#56B4E9", "#009E73", "#BBBBBB", "#CC79A7"]
+
+    stat_dict = plot_stat_significance(data_dict)
 
     # create boxplots
     for ix, bioclim_name in enumerate(bioclim_list):
@@ -238,14 +287,54 @@ def plot_axs(ax, data_dict, title):
     ]
     ax.set_xticklabels(xticklabs)
 
-    grid_x = np.arange(4.5,33,4)
+    grid_x = np.arange(4.5, 33, 4)
     for i in grid_x:
         ax.axvline(i, color="gray", linestyle=(0, (5, 10)))
 
-    # labeling axes
-    ax.set_yticks(list(np.arange(0.0, 1.2, 0.2)))
-    yticklabs = [round(n, 1) for n in list(np.arange(0.0, 1.2, 0.2))]
-    ax.set_yticklabels(yticklabs)
+    # add significance stars
+    # after https://rowannicholls.github.io/python/graphs/ax_based/boxplots_significance.html
+    bottom = 0.0
+    top = 0.93
+    yrange = top - bottom
+
+    for ix, pft_name in enumerate(bioclim_list):
+        sig_combi = stat_dict[pft_name]
+        for i, significant_combination in enumerate(sig_combi):
+            x1 = significant_combination[0][0] - 1
+            x2 = significant_combination[0][1] - 1
+            level = len(sig_combi) - i
+
+            position_x1 = 4 * ix + x1 + 1
+            position_x2 = 4 * ix + x2 + 1
+
+            bar_height = (yrange * 0.08 * level) + top
+            bar_tips = bar_height - (yrange * 0.02)
+
+            ax.plot(
+                [position_x1, position_x1, position_x2, position_x2],
+                [bar_tips, bar_height, bar_height, bar_tips],
+                lw=1,
+                c="k",
+            )
+
+            p = significant_combination[1]
+            if p < 0.001:
+                sig_symbol = "***"
+            elif p < 0.01:
+                sig_symbol = "**"
+            elif p < 0.05:
+                sig_symbol = "*"
+            elif p >= 0.05:
+                sig_symbol = "n.s."
+            text_height = bar_height + (yrange * 0.01)
+            ax.text(
+                (position_x1 + position_x2) * 0.5,
+                text_height,
+                sig_symbol,
+                ha="center",
+                c="k",
+                fontsize=26,
+            )
 
     ax.tick_params(axis="both", which="major", labelsize=38.0)
     ax.tick_params(axis="x", labelrotation=45)
@@ -256,6 +345,21 @@ def plot_axs(ax, data_dict, title):
     )
 
     sns.despine(ax=ax, top=True, right=True)
+
+
+def assign_symbol(p_val):
+    """
+    assign symbol of statistical significance based on p-value
+    """
+    if p_val < 0.001:
+        sig_symbol = "***"
+    elif p_val < 0.01:
+        sig_symbol = "**"
+    elif p_val < 0.05:
+        sig_symbol = "*"
+    elif p_val >= 0.05:
+        sig_symbol = "n.s."
+    return f"{p_val}$^{{{sig_symbol}}}$"
 
 
 def plot_fig(p_mod_res_path_dict, lue_mod_res_path_dict):
@@ -282,7 +386,9 @@ def plot_fig(p_mod_res_path_dict, lue_mod_res_path_dict):
         ncols=1, nrows=2, figsize=(40, 24), sharex=True, sharey=True
     )
 
-    plot_axs(axs[0], p_mod_bioclim_mod_perform_dict, r"(a) P$^{\text{W}}_{\text{hr}}$ model")
+    plot_axs(
+        axs[0], p_mod_bioclim_mod_perform_dict, r"(a) P$^{\text{W}}_{\text{hr}}$ model"
+    )
     plot_axs(axs[1], lue_mod_bioclim_mod_perform_dict, r"(b) Bao$_{\text{hr}}$ model")
 
     fig.subplots_adjust(hspace=0.2)
@@ -335,6 +441,33 @@ def plot_fig(p_mod_res_path_dict, lue_mod_res_path_dict):
         bbox_inches="tight",
     )
     plt.close("all")
+
+    # test if model performance between P-model and LUE model
+    # is significantly different for a PFT and a parameterization method
+    # using non-parametric Kolmogorov-Smirnov test
+    sig_test_among_model_dict = {
+        "PFT": [],
+        "per_site_yr": [],
+        "per_site": [],
+        "per_pft": [],
+        "glob": [],
+    }
+    for pft, mod_perform_dict in p_mod_bioclim_mod_perform_dict.items():
+        sig_test_among_model_dict["PFT"].append(pft)
+
+        for opti, nse_vals in mod_perform_dict.items():
+            data1 = 1.0 / (2.0 - np.array(nse_vals))
+            data2 = 1.0 / (2.0 - np.array(lue_mod_bioclim_mod_perform_dict[pft][opti]))
+
+            _, p_val = stats.ks_2samp(data1, data2)
+            sig_test_among_model_dict[opti].append(round(p_val, 3))
+
+    sig_test_among_model_df = pd.DataFrame(sig_test_among_model_dict)
+
+    sig_test_among_model_df.iloc[:, 1:5] = sig_test_among_model_df.iloc[
+        :, 1:5
+    ].applymap(assign_symbol)
+    print(sig_test_among_model_df.to_latex(index=False, escape=False))
 
 
 if __name__ == "__main__":
