@@ -92,6 +92,8 @@ De, R. (2024). Scripts for analyses presented in "Addressing challenges in simul
 # Change Log:
 **v1.2-preprint**
 - updated upper limit of LUEmax model parameter for Bao model and its variations.
+- updated analysis on GPP uncertianty at annual scale.
+- added statistical significance testing for model performance across PFTs and Bioclimatic regions.
 - updated codes for figures as per reviewers' suggestions.
 - updated license.
 
@@ -103,13 +105,13 @@ De, R. (2024). Scripts for analyses presented in "Addressing challenges in simul
 
 
 # License
-[![GNU GPL v3.0][gnu-gpl-v3-shield]][gnu-gpl-v3]
+[![MIT License][MIT-License-shield]][MIT License]
 
 This work is licensed under a
-[GNU General Public License v3.0][gnu-gpl-v3].
+[MIT License][MIT License].
 
-[![GNU GPL v3.0][gnu-gpl-v3-image]][gnu-gpl-v3]
-
-[gnu-gpl-v3]: https://www.gnu.org/licenses/gpl-3.0.en.html
-[gnu-gpl-v3-image]: https://www.gnu.org/graphics/gplv3-127x51.png
-[gnu-gpl-v3-shield]: https://img.shields.io/badge/License-GNU_GPL_v3.0-blue
+[MIT License]: https://spdx.org/licenses/MIT.html
+[MIT-License-shield]: https://img.shields.io/badge/License-MIT-blue
+<a href="https://spdx.org/licenses/MIT.html">
+<img src=https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/i/7195e121-eded-45cf-9aab-909deebd81b2/d9ur2lg-28410b47-58fd-4a48-9b67-49c0f56c68ce.png alt="MIT-License-image" width="100"/>
+</a>
