@@ -3,7 +3,8 @@
 
 
 # Addressing Challenges in Simulating Inter–annual Variability of Gross Primary Production
-![alt text](https://github.com/de-ranit/iav_gpp_p_bao/blob/main/prep_figs/figures/f01.png?raw=true)
+<img src=https://raw.githubusercontent.com/de-ranit/iav_gpp_p_bao/refs/heads/main/prep_figs/figures/f01.png width="600"/>
+
 Created in BioRender. De, R. (2024) https://BioRender.com/i01x768  
 
 
