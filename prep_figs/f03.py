@@ -412,7 +412,10 @@ def plot_fig_main(
     )
 
     fig.supxlabel(
-        r"Fraction of site--year per site within range of $\text{GPP}_{\text{EC}}$ [-]",
+        (
+            "Fraction of site--years per site within" 
+            r"uncertainty range of $\text{GPP}_{\text{EC}}$ [-]"
+        ),
         y=-0.03,
         fontsize=34,
     )
