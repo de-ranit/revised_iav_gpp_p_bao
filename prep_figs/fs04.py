@@ -28,13 +28,8 @@ import cartopy.feature as cfeature
 
 # set up matplotlib to use LaTeX for rendering text
 matplotlib.rcParams["text.usetex"] = True
-matplotlib.rcParams["text.latex.preamble"] = (
-    r"\renewcommand{\familydefault}{\sfdefault}"  # use sans-serif font
-)
-
-# set the font to computer modern sans
-matplotlib.rcParams["font.family"] = "sans-serif"
-matplotlib.rcParams["font.sans-serif"] = "cmss10"
+matplotlib.rcParams['mathtext.fontset'] = 'cm'
+matplotlib.rcParams["font.family"] = 'STIXGeneral'
 plt.rcParams["pdf.fonttype"] = 42  # embedd fonts in pdf
 plt.rcParams["axes.edgecolor"] = "black"  # make the axes edge color black
 plt.rcParams["axes.linewidth"] = 2.0  # make the axes edge linewidth thicker
@@ -175,10 +170,10 @@ def plot_site_loc(site_info_df, remove_sites=None):
     fig_path = Path("supplement_figs")
     os.makedirs(fig_path, exist_ok=True)
     plt.savefig(
-        "./supplement_figs/fig_s03_fluxnet_site_loc.png", dpi=300, bbox_inches="tight"
+        "./supplement_figs/fs04.png", dpi=300, bbox_inches="tight"
     )
     plt.savefig(
-        "./supplement_figs/fig_s03_fluxnet_site_loc.pdf",
+        "./supplement_figs/fs04.pdf",
         metadata=metadata,
         dpi=300,
         bbox_inches="tight",

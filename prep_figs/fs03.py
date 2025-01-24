@@ -24,14 +24,9 @@ import seaborn as sns
 
 # set up matplotlib to use LaTeX for rendering text
 matplotlib.rcParams["text.usetex"] = True
-matplotlib.rcParams["text.latex.preamble"] = (
-    r"\renewcommand{\familydefault}{\sfdefault}"  # use sans-serif font
-)
 matplotlib.rcParams["text.latex.preamble"] = r"\usepackage{amsmath}"
-
-# set the font to computer modern sans
-matplotlib.rcParams["font.family"] = "sans-serif"
-matplotlib.rcParams["font.sans-serif"] = "cmss10"
+matplotlib.rcParams['mathtext.fontset'] = 'cm'
+matplotlib.rcParams["font.family"] = 'STIXGeneral'
 plt.rcParams["pdf.fonttype"] = 42  # embedd fonts in pdf
 plt.rcParams["axes.edgecolor"] = "black"  # make the axes edge color black
 plt.rcParams["axes.linewidth"] = 2  # make the axes edge linewidth thicker
@@ -143,6 +138,6 @@ if __name__ == "__main__":
     # save the figure
     fig_path = Path("supplement_figs")
     os.makedirs(fig_path, exist_ok=True)
-    plt.savefig("./supplement_figs/ft_compare.png", dpi=300, bbox_inches="tight")
-    plt.savefig("./supplement_figs/ft_compare.pdf", dpi=300, bbox_inches="tight")
+    plt.savefig("./supplement_figs/fs03.png", dpi=300, bbox_inches="tight")
+    plt.savefig("./supplement_figs/fs03.pdf", dpi=300, bbox_inches="tight")
     plt.close("all")

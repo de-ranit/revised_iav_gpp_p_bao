@@ -38,15 +38,10 @@ from src.postprocess.prep_results import filter_data_up_dd  # pylint: disable=C0
 # set up matplotlib to use LaTeX for rendering text
 matplotlib.rcParams["text.usetex"] = True
 matplotlib.rcParams["text.latex.preamble"] = (
-    r"\renewcommand{\familydefault}{\sfdefault}"  # use sans-serif font
-)
-matplotlib.rcParams["text.latex.preamble"] = (
     r"\usepackage{amsmath}"  # use amsmath package
 )
-
-# set the font to computer modern sans
-matplotlib.rcParams["font.family"] = "sans-serif"
-matplotlib.rcParams["font.sans-serif"] = "cmss10"
+matplotlib.rcParams['mathtext.fontset'] = 'cm'
+matplotlib.rcParams["font.family"] = 'STIXGeneral'
 plt.rcParams["pdf.fonttype"] = 42  # embedd fonts in pdf
 plt.rcParams["axes.edgecolor"] = "black"  # make the axes edge color black
 plt.rcParams["axes.linewidth"] = 2.0  # make the axes edge linewidth thicker
@@ -413,7 +408,7 @@ def plot_fig_main(
 
     fig.supxlabel(
         (
-            "Fraction of site--years per site within" 
+            "Fraction of site--years per site within " 
             r"uncertainty range of $\text{GPP}_{\text{EC}}$ [-]"
         ),
         y=-0.03,
@@ -455,8 +450,8 @@ def plot_fig_main(
 
     fig_path = Path("figures")
     os.makedirs(fig_path, exist_ok=True)
-    plt.savefig("./figures/f03_new.png", dpi=300, bbox_inches="tight")
-    plt.savefig("./figures/f03_new.pdf", dpi=300, bbox_inches="tight")
+    plt.savefig("./figures/f03.png", dpi=300, bbox_inches="tight")
+    plt.savefig("./figures/f03.pdf", dpi=300, bbox_inches="tight")
     plt.close("all")
 
     # get the mean fraction of simulated GPP within the range for each optimization type

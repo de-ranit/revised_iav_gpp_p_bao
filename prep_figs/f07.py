@@ -28,14 +28,9 @@ import seaborn as sns
 
 # set up matplotlib to use LaTeX for rendering text
 matplotlib.rcParams["text.usetex"] = True
-matplotlib.rcParams["text.latex.preamble"] = (
-    r"\renewcommand{\familydefault}{\sfdefault}"  # use sans-serif font
-)
 matplotlib.rcParams["text.latex.preamble"] = r"\usepackage{amsmath}"
-
-# set the font to computer modern sans
-matplotlib.rcParams["font.family"] = "sans-serif"
-matplotlib.rcParams["font.sans-serif"] = "cmss10"
+matplotlib.rcParams['mathtext.fontset'] = 'cm'
+matplotlib.rcParams["font.family"] = 'STIXGeneral'
 plt.rcParams["pdf.fonttype"] = 42  # embedd fonts in pdf
 plt.rcParams["axes.edgecolor"] = "black"  # make the axes edge color black
 plt.rcParams["axes.linewidth"] = 2.0  # make the axes edge linewidth thicker
