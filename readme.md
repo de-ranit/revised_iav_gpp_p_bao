@@ -12,25 +12,25 @@ Created in BioRender. De, R. (2024) https://BioRender.com/i01x768
 This repository contains codes to perform analysis and reproduce figures of our research paper:
 
 ```
-De, R., Bao, S., Koirala, S., Brenning, A., Reichstein, M., Tagesson, T., Liddell, M., Ibrom, A., Wolf, S., Šigut, L., Hörtnagl, L., Woodgate, W., Korkiakoski, M., Merbold, L., Black, T. A., Roland, M., Klosterhalfen, A., Blanken, P. D., Knox, S., Sabbatini, S., Gielen, B., Montagnani, L., Fensholt, R., Wohlfahrt, G., Desai, A. R., Paul-Limoges, E., Galvagno, M., Hammerle, A., Jocher, G., Ruiz Reverter, B., Holl, D., Chen, J., Vitale, L., Arain, M. A., and Carvalhais, N.: Addressing Challenges in Simulating Inter–annual Variability of Gross
-Primary Production, ESS Open Archive, 2024, 1–42, https://doi.org/10.22541/essoar.172656939.93739740/v2, 2024.
+De, R., Bao, S., Koirala, S., Brenning, A., Reichstein, M., Tagesson, T., Liddell, M., Ibrom, A., Wolf, S., Šigut, L., Hörtnagl, L., Woodgate, W., Korkiakoski, M., Merbold, L., Black, T. A., Roland, M., Klosterhalfen, A., Blanken, P. D., Knox, S., Sabbatini, S., Gielen, B., Montagnani, L., Fensholt, R., Wohlfahrt, G., Desai, A. R., Paul-Limoges, E., Galvagno, M., Hammerle, A., Jocher, G., Ruiz Reverter, B., Holl, D., Chen, J., Vitale, L., Arain, M. A., and Carvalhais, N. (2025). Addressing Challenges in Simulating Inter–annual Variability of Gross
+Primary Production, ESS Open Archive, 1–75, https://doi.org/10.22541/essoar.172656939.93739740/v2
 ```
 
 We used majorly the following two models in our study. It is highly recommended to get acquainted with the following two research papers before using our codes.
 
 1. Optimality-based model: P-model of Mengoli
 ```
-Mengoli, G., Agustí-Panareda, A., Boussetta, S., Harrison, S. P., Trotta, C., and Prentice, I. C.: Ecosystem photosynthesis in
+Mengoli, G., Agustí-Panareda, A., Boussetta, S., Harrison, S. P., Trotta, C., and Prentice, I. C. (2022). Ecosystem photosynthesis in
 land-surface models: A first-principles approach incorporating acclimation, Journal of Advances in Modeling Earth Systems, 14,
-https://doi.org/10.1029/2021MS002767, 2022
+https://doi.org/10.1029/2021MS002767
 ```
 
 2. Semi-empirical model: Bao model
 ```
 Bao, S., Wutzler, T., Koirala, S., Cuntz, M., Ibrom, A., Besnard, S., Walther, S., Šigut, L., Moreno, A., Weber, U., Wohlfahrt,695
-G., Cleverly, J., Migliavacca, M., Woodgate, W., Merbold, L., Veenendaal, E., and Carvalhais, N.: Environment-sensitivity
+G., Cleverly, J., Migliavacca, M., Woodgate, W., Merbold, L., Veenendaal, E., and Carvalhais, N. (2022). Environment-sensitivity
 functions for gross primary productivity in light use efficiency models, Agricultural and Forest Meteorology, 312, 108 708,
-https://doi.org/10.1016/j.agrformet.2021.108708, 2022
+https://doi.org/10.1016/j.agrformet.2021.108708
 ```
 
 
@@ -54,21 +54,21 @@ The codes are written to be compatible with computing platforms and filestructur
 **Research paper:**
   - BibTeX
 ```
-@article{De_IAV_GPP_2024,
+@article{De_IAV_GPP_2025,
   author = {De, R. and Bao, S. and Koirala, S. and Brenning, A. and Reichstein, M. and Tagesson, T. and Liddell, M. and Ibrom, A. and Wolf, S. and Šigut, L. and Hörtnagl, L. and Woodgate, W. and Korkiakoski, M. and Merbold, L. and Black, T. A. and Roland, M. and Klosterhalfen, A. and Blanken, P. D. and Knox, S. and Sabbatini, S. and Gielen, B. and Montagnani, L. and Fensholt, R. and Wohlfahrt, G. and Desai, A. R. and Paul-Limoges, E. and Galvagno, M. and Hammerle, A. and Jocher, G. and Ruiz Reverter, B. and Holl, D. and Chen, J. and Vitale, L. and Arain, M. A. and Carvalhais, N.},
   title = {{Addressing Challenges in Simulating Inter–annual Variability of Gross Primary Production}},
   journal = {{ESS Open Archive}},
-  volume = {2024},
-  year = {2024},
-  pages = {1--42},
+  volume = {2025},
+  year = {2025},
+  pages = {1--75},
   url = {https://essopenarchive.org/doi/full/10.22541/essoar.172656939.93739740/v2},
   doi = {10.22541/essoar.172656939.93739740/v2}
 }
 ```
   - APA
 ```
-De, R., Bao, S., Koirala, S., Brenning, A., Reichstein, M., Tagesson, T., Liddell, M., Ibrom, A., Wolf, S., Šigut, L., Hörtnagl, L., Woodgate, W., Korkiakoski, M., Merbold, L., Black, T. A., Roland, M., Klosterhalfen, A., Blanken, P. D., Knox, S., Sabbatini, S., Gielen, B., Montagnani, L., Fensholt, R., Wohlfahrt, G., Desai, A. R., Paul-Limoges, E., Galvagno, M., Hammerle, A., Jocher, G., Ruiz Reverter, B., Holl, D., Chen, J., Vitale, L., Arain, M. A., and Carvalhais, N.: Addressing Challenges in Simulating Inter–annual Variability of Gross
-Primary Production, ESS Open Archive, 2024, 1–42, https://doi.org/10.22541/essoar.172656939.93739740/v2, 2024.
+De, R., Bao, S., Koirala, S., Brenning, A., Reichstein, M., Tagesson, T., Liddell, M., Ibrom, A., Wolf, S., Šigut, L., Hörtnagl, L., Woodgate, W., Korkiakoski, M., Merbold, L., Black, T. A., Roland, M., Klosterhalfen, A., Blanken, P. D., Knox, S., Sabbatini, S., Gielen, B., Montagnani, L., Fensholt, R., Wohlfahrt, G., Desai, A. R., Paul-Limoges, E., Galvagno, M., Hammerle, A., Jocher, G., Ruiz Reverter, B., Holl, D., Chen, J., Vitale, L., Arain, M. A., and Carvalhais, N. (2025). Addressing Challenges in Simulating Inter–annual Variability of Gross
+Primary Production, ESS Open Archive, 1–75, https://doi.org/10.22541/essoar.172656939.93739740/v2
 ```
 
 **This repository:**
