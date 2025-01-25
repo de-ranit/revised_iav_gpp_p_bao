@@ -1,5 +1,5 @@
 [![Static Badge](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.13729514-blue?logo=Zenodo&logoColor=white&logoSize=auto)](https://doi.org/10.5281/zenodo.13729514)
-[![Static Badge](https://img.shields.io/badge/Preprint_DOI-10.22541%2Fessoar.172656939.93739740%2Fv1-blue)](https://doi.org/10.22541/essoar.172656939.93739740/v1)
+[![Static Badge](https://img.shields.io/badge/Preprint_DOI-10.22541%2Fessoar.172656939.93739740%2Fv2-blue)](https://doi.org/10.22541/essoar.172656939.93739740/v2)
 
 
 # Addressing Challenges in Simulating Inter–annual Variability of Gross Primary Production
@@ -13,7 +13,7 @@ This repository contains codes to perform analysis and reproduce figures of our 
 
 ```
 De, R., Bao, S., Koirala, S., Brenning, A., Reichstein, M., Tagesson, T., Liddell, M., Ibrom, A., Wolf, S., Šigut, L., Hörtnagl, L., Woodgate, W., Korkiakoski, M., Merbold, L., Black, T. A., Roland, M., Klosterhalfen, A., Blanken, P. D., Knox, S., Sabbatini, S., Gielen, B., Montagnani, L., Fensholt, R., Wohlfahrt, G., Desai, A. R., Paul-Limoges, E., Galvagno, M., Hammerle, A., Jocher, G., Ruiz Reverter, B., Holl, D., Chen, J., Vitale, L., Arain, M. A., and Carvalhais, N.: Addressing Challenges in Simulating Inter–annual Variability of Gross
-Primary Production, ESS Open Archive, 2024, 1–42, https://doi.org/10.22541/essoar.172656939.93739740/v1, 2024.
+Primary Production, ESS Open Archive, 2024, 1–42, https://doi.org/10.22541/essoar.172656939.93739740/v2, 2024.
 ```
 
 We used majorly the following two models in our study. It is highly recommended to get acquainted with the following two research papers before using our codes.
@@ -61,14 +61,14 @@ The codes are written to be compatible with computing platforms and filestructur
   volume = {2024},
   year = {2024},
   pages = {1--42},
-  url = {https://essopenarchive.org/doi/full/10.22541/essoar.172656939.93739740/v1},
-  doi = {10.22541/essoar.172656939.93739740/v1}
+  url = {https://essopenarchive.org/doi/full/10.22541/essoar.172656939.93739740/v2},
+  doi = {10.22541/essoar.172656939.93739740/v2}
 }
 ```
   - APA
 ```
 De, R., Bao, S., Koirala, S., Brenning, A., Reichstein, M., Tagesson, T., Liddell, M., Ibrom, A., Wolf, S., Šigut, L., Hörtnagl, L., Woodgate, W., Korkiakoski, M., Merbold, L., Black, T. A., Roland, M., Klosterhalfen, A., Blanken, P. D., Knox, S., Sabbatini, S., Gielen, B., Montagnani, L., Fensholt, R., Wohlfahrt, G., Desai, A. R., Paul-Limoges, E., Galvagno, M., Hammerle, A., Jocher, G., Ruiz Reverter, B., Holl, D., Chen, J., Vitale, L., Arain, M. A., and Carvalhais, N.: Addressing Challenges in Simulating Inter–annual Variability of Gross
-Primary Production, ESS Open Archive, 2024, 1–42, https://doi.org/10.22541/essoar.172656939.93739740/v1, 2024.
+Primary Production, ESS Open Archive, 2024, 1–42, https://doi.org/10.22541/essoar.172656939.93739740/v2, 2024.
 ```
 
 **This repository:**
@@ -93,7 +93,7 @@ De, R. (2024). Scripts for analyses presented in "Addressing challenges in simul
 # Change Log:
 **v1.2-preprint**
 - updated upper limit of LUEmax model parameter for Bao model and its variations.
-- updated analysis on GPP uncertianty at annual scale.
+- added an analysis on GPP uncertianty at annual scale.
 - added statistical significance testing for model performance across PFTs and Bioclimatic regions.
 - updated codes for figures as per reviewers' suggestions.
 - updated license.
@@ -114,7 +114,7 @@ This work is licensed under a
 [MIT License]: https://github.com/de-ranit/iav_gpp_p_bao/blob/main/LICENSE
 [MIT-License-shield]: https://img.shields.io/badge/License-MIT-blue
 <a href="https://github.com/de-ranit/iav_gpp_p_bao/blob/main/LICENSE">
-<img src=https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/i/7195e121-eded-45cf-9aab-909deebd81b2/d9ur2lg-28410b47-58fd-4a48-9b67-49c0f56c68ce.png alt="MIT-License-image" width="150"/>
+<img src=https://raw.githubusercontent.com/de-ranit/iav_gpp_p_bao/refs/heads/main/lic_logo/mit_license_logo.png alt="MIT-License-image" width="150"/>
 </a>
 
-<span style="font-size:3px;">Created by [ExcaliburZero](https://www.deviantart.com/excaliburzero/art/MIT-License-Logo-595847140), used under [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)</span>
+<span style="font-size:6px;">Created by [ExcaliburZero](https://www.deviantart.com/excaliburzero/art/MIT-License-Logo-595847140), used under [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)</span>
