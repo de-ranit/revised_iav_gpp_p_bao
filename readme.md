@@ -1,12 +1,21 @@
-[![Static Badge](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.13729514-blue?logo=Zenodo&logoColor=white&logoSize=auto)](https://doi.org/10.5281/zenodo.13729514)
-[![Static Badge](https://img.shields.io/badge/Preprint_DOI-10.22541%2Fessoar.172656939.93739740%2Fv2-blue)](https://doi.org/10.22541/essoar.172656939.93739740/v2)
-
-
 # Addressing Challenges in Simulating Inter–annual Variability of Gross Primary Production
-<img src=https://raw.githubusercontent.com/de-ranit/iav_gpp_p_bao/refs/heads/main/prep_figs/figures/f01.png width="600"/>
+<p align="center">
+  <img src=https://raw.githubusercontent.com/de-ranit/iav_gpp_p_bao/refs/heads/main/prep_figs/figures/f01.png width="600">
+</p>
 
-Created in BioRender. De, R. (2024) https://BioRender.com/i01x768  
+<p align="center">
+  Created in BioRender. De, R. (2024) <a href=https://BioRender.com/i01x768>https://BioRender.com/i01x768</a>
+</p>
 
+<p align="center">
+  <a href="https://doi.org/10.5281/zenodo.13729514">
+    <img alt="ZenodoDOI" src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.13729514-blue?logo=Zenodo&logoColor=white&logoSize=auto"
+  ></a>
+
+  <a href="https://doi.org/10.22541/essoar.172656939.93739740/v2">
+    <img alt="PreprintDOI" src="https://img.shields.io/badge/Preprint_DOI-10.22541%2Fessoar.172656939.93739740%2Fv2-blue"
+  ></a>
+</p>
 
 # Description
 This repository contains codes to perform analysis and reproduce figures of our research paper:
