@@ -89,6 +89,7 @@ __pycache__/
 !SiteInfo_BRKsite_list.csv
 !model_settings.xlsx
 !f01.png
+!mit_license_logo.png
 
 #### ignore the following exceptional files/folder ####
 *_send_slurm_job.sh
