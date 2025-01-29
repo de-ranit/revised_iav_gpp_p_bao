@@ -83,11 +83,11 @@ Primary Production, ESS Open Archive, 1–75, https://doi.org/10.22541/essoar.17
 **This repository:**
   - BibTeX
 ```
-@software{De2024Codes,
+@software{De2025Codes,
   author       = {De, Ranit},
   title        = {{Scripts for analyses presented in ``Addressing challenges in simulating inter–annual variability of gross primary production''}},
-  month        = sep,
-  year         = 2024,
+  month        = jan,
+  year         = 2025,
   publisher    = {Zenodo},
   version      = {v1.2-preprint},
   doi          = {10.5281/zenodo.13729514},
@@ -96,7 +96,7 @@ Primary Production, ESS Open Archive, 1–75, https://doi.org/10.22541/essoar.17
 ```
   - APA
 ```
-De, R. (2024). Scripts for analyses presented in "Addressing challenges in simulating inter–annual variability of gross primary production" (v1.2-preprint). Zenodo. https://doi.org/10.5281/zenodo.13729514
+De, R. (2025). Scripts for analyses presented in "Addressing challenges in simulating inter–annual variability of gross primary production" (v1.2-preprint). Zenodo. https://doi.org/10.5281/zenodo.13729514
 ```
 
 # Change Log:
