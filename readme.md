@@ -126,4 +126,4 @@ This work is licensed under a
 <img src=https://raw.githubusercontent.com/de-ranit/iav_gpp_p_bao/refs/heads/main/lic_logo/mit_license_logo.png alt="MIT-License-image" width="150"/>
 </a>
 
-<span style="font-size:6px;">Created by [ExcaliburZero](https://www.deviantart.com/excaliburzero/art/MIT-License-Logo-595847140), used under [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)</span>
+<span style="font-size:6px;">License logo is created by [ExcaliburZero](https://www.deviantart.com/excaliburzero/art/MIT-License-Logo-595847140), used under [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)</span>
