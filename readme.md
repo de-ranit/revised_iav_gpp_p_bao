@@ -12,8 +12,8 @@
     <img alt="ZenodoDOI" src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.13729514-blue?logo=Zenodo&logoColor=white&logoSize=auto"
   ></a>
 
-  <a href="https://doi.org/10.22541/essoar.172656939.93739740/v2">
-    <img alt="PreprintDOI" src="https://img.shields.io/badge/Preprint_DOI-10.22541%2Fessoar.172656939.93739740%2Fv2-blue"
+  <a href="https://doi.org/10.1029/2024MS004697">
+    <img alt="ArticleDOI" src="https://img.shields.io/badge/Article_DOI-10.1029%2F2024MS004697-blue"
   ></a>
 </p>
 
@@ -22,7 +22,7 @@ This repository contains codes to perform analysis and reproduce figures of our 
 
 ```
 De, R., Bao, S., Koirala, S., Brenning, A., Reichstein, M., Tagesson, T., Liddell, M., Ibrom, A., Wolf, S., Šigut, L., Hörtnagl, L., Woodgate, W., Korkiakoski, M., Merbold, L., Black, T. A., Roland, M., Klosterhalfen, A., Blanken, P. D., Knox, S., Sabbatini, S., Gielen, B., Montagnani, L., Fensholt, R., Wohlfahrt, G., Desai, A. R., Paul-Limoges, E., Galvagno, M., Hammerle, A., Jocher, G., Ruiz Reverter, B., Holl, D., Chen, J., Vitale, L., Arain, M. A., and Carvalhais, N. (2025). Addressing Challenges in Simulating Inter–annual Variability of Gross
-Primary Production, ESS Open Archive, 1–75, https://doi.org/10.22541/essoar.172656939.93739740/v2
+Primary Production. Journal of Advances in Modeling Earth Systems, 17(5), e2024MS004697. https://doi.org/10.1029/2024MS004697
 ```
 
 We used majorly the following two models in our study. It is highly recommended to get acquainted with the following two research papers before using our codes.
@@ -64,20 +64,21 @@ The codes are written to be compatible with computing platforms and filestructur
   - BibTeX
 ```
 @article{De_IAV_GPP_2025,
-  author = {De, R. and Bao, S. and Koirala, S. and Brenning, A. and Reichstein, M. and Tagesson, T. and Liddell, M. and Ibrom, A. and Wolf, S. and Šigut, L. and Hörtnagl, L. and Woodgate, W. and Korkiakoski, M. and Merbold, L. and Black, T. A. and Roland, M. and Klosterhalfen, A. and Blanken, P. D. and Knox, S. and Sabbatini, S. and Gielen, B. and Montagnani, L. and Fensholt, R. and Wohlfahrt, G. and Desai, A. R. and Paul-Limoges, E. and Galvagno, M. and Hammerle, A. and Jocher, G. and Ruiz Reverter, B. and Holl, D. and Chen, J. and Vitale, L. and Arain, M. A. and Carvalhais, N.},
-  title = {{Addressing Challenges in Simulating Inter–annual Variability of Gross Primary Production}},
-  journal = {{ESS Open Archive}},
-  volume = {2025},
-  year = {2025},
-  pages = {1--75},
-  url = {https://essopenarchive.org/doi/full/10.22541/essoar.172656939.93739740/v2},
-  doi = {10.22541/essoar.172656939.93739740/v2}
+  author = {De, Ranit and Bao, Shanning and Koirala, Sujan and Brenning, Alexander and Reichstein, Markus and Tagesson, Torbern and Liddell, Michael and Ibrom, Andreas and Wolf, Sebastian and Šigut, Ladislav and Hörtnagl, Lukas and Woodgate, William and Korkiakoski, Mika and Merbold, Lutz and Black, T. Andrew and Roland, Marilyn and Klosterhalfen, Anne and Blanken, Peter D. and Knox, Sara and Sabbatini, Simone and Gielen, Bert and Montagnani, Leonardo and Fensholt, Rasmus and Wohlfahrt, Georg and Desai, Ankur R. and Paul-Limoges, Eugénie and Galvagno, Marta and Hammerle, Albin and Jocher, Georg and Reverter, Borja Ruiz and Holl, David and Chen, Jiquan and Vitale, Luca and Arain, M. Altaf and Carvalhais, Nuno},
+  title = {Addressing Challenges in Simulating Inter–Annual Variability of Gross Primary Production},
+  journal = {Journal of Advances in Modeling Earth Systems},
+  volume = {17},
+  number = {5},
+  pages = {e2024MS004697},
+  doi = {https://doi.org/10.1029/2024MS004697},
+  url = {https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2024MS004697},
+  year = {2025}
 }
 ```
   - APA
 ```
 De, R., Bao, S., Koirala, S., Brenning, A., Reichstein, M., Tagesson, T., Liddell, M., Ibrom, A., Wolf, S., Šigut, L., Hörtnagl, L., Woodgate, W., Korkiakoski, M., Merbold, L., Black, T. A., Roland, M., Klosterhalfen, A., Blanken, P. D., Knox, S., Sabbatini, S., Gielen, B., Montagnani, L., Fensholt, R., Wohlfahrt, G., Desai, A. R., Paul-Limoges, E., Galvagno, M., Hammerle, A., Jocher, G., Ruiz Reverter, B., Holl, D., Chen, J., Vitale, L., Arain, M. A., and Carvalhais, N. (2025). Addressing Challenges in Simulating Inter–annual Variability of Gross
-Primary Production, ESS Open Archive, 1–75, https://doi.org/10.22541/essoar.172656939.93739740/v2
+Primary Production. Journal of Advances in Modeling Earth Systems, 17(5), e2024MS004697. https://doi.org/10.1029/2024MS004697
 ```
 
 **This repository:**
@@ -86,20 +87,23 @@ Primary Production, ESS Open Archive, 1–75, https://doi.org/10.22541/essoar.17
 @software{De2025Codes,
   author       = {De, Ranit},
   title        = {{Scripts for analyses presented in ``Addressing challenges in simulating inter–annual variability of gross primary production''}},
-  month        = jan,
+  month        = apr,
   year         = 2025,
   publisher    = {Zenodo},
-  version      = {v1.2-preprint},
+  version      = {v1.3-published},
   doi          = {10.5281/zenodo.13729514},
   url          = {https://github.com/de-ranit/iav_gpp_p_bao}
 }
 ```
   - APA
 ```
-De, R. (2025). Scripts for analyses presented in "Addressing challenges in simulating inter–annual variability of gross primary production" (v1.2-preprint). Zenodo. https://doi.org/10.5281/zenodo.13729514
+De, R. (2025). Scripts for analyses presented in "Addressing challenges in simulating inter–annual variability of gross primary production" (v1.3-published). Zenodo. https://doi.org/10.5281/zenodo.13729514
 ```
 
 # Change Log:
+**v1.3-published**
+- updated readme with reference to the published article.
+
 **v1.2-preprint**
 - updated upper limit of LUEmax model parameter for Bao model and its variations.
 - added an analysis on GPP uncertianty at annual scale.
