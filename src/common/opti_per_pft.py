@@ -7,21 +7,31 @@ Perform the optimization of the model parameters for a given PFT
 author: rde
 first created: 2023-12-15
 """
+import os
 
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+os.environ.setdefault("NUMEXPR_NUM_THREADS", "1")
 
 import logging
 import concurrent.futures
 import multiprocessing
+import json
+import time
 from functools import partial
 import bottleneck as bn
 import cma
 import numpy as np
+from scipy.optimize import minimize
+from scipy.optimize import Bounds
 
 from src.common.get_data import get_data
 from src.p_model.pmodel_plus import pmodel_plus
 from src.common.get_params import get_params
 from src.p_model.p_model_cost_function import p_model_cost_function
 from src.lue_model.lue_model_cost_function import lue_model_cost_function
+from src.common.forward_run_model import scale_back_params
 from src.common.opti_per_site_or_site_year import (
     get_cmaes_options,
     HiddenPrints,
@@ -34,6 +44,7 @@ logger = logging.getLogger(__name__)
 
 def pft_cost_fn(
     p_values_scalar,
+    info_dict,
     site_list,
     p_names_tuple,
     ip_df_dict_tuple,
@@ -159,6 +170,18 @@ def pft_cost_fn(
     # sum up the cost values for all sites to get the total cost for the PFT
     total_cost = bn.nansum(costs)
 
+    if info_dict["do_l-bfgs-b_from_prev"]:
+        print(info_dict["Nfeval"], p_values_scalar, total_cost)
+        print("--------------------------------------------------")
+        logger.info(
+            "PFT %s, Function evaluation %d, Parameters: %s, Total cost: %.4f",
+            info_dict["pft"],
+            info_dict["Nfeval"],
+            str(p_values_scalar),
+            total_cost,
+        )
+        info_dict["Nfeval"] += 1
+
     return total_cost
 
 
@@ -246,6 +269,10 @@ def opti_per_pft(pft, sites_per_pft_dict, settings_dict):
     )
     cost_func_tuple = tuple(settings_dict["cost_func"] for site_name in site_list)
 
+    # initialize function evaluation counter for logging during L-BFGS-B
+    settings_dict["Nfeval"] = -1
+    settings_dict["pft"] = pft
+
     # list of parameters to be optimized
     if settings_dict["model_name"] == "P_model":
         # list of parameters to be optimized in all cases
@@ -276,6 +303,7 @@ def opti_per_pft(pft, sites_per_pft_dict, settings_dict):
         # define the cost function to be optimized for P model
         costhand = partial(
             pft_cost_fn,
+            info_dict=settings_dict,
             site_list=site_list,
             p_names_tuple=(p_names,) * len(site_list),
             ip_df_dict_tuple=ip_df_dict_tuple,
@@ -358,6 +386,7 @@ def opti_per_pft(pft, sites_per_pft_dict, settings_dict):
         # define the cost function to be optimized for LUE model
         costhand = partial(
             pft_cost_fn,
+            info_dict=settings_dict,
             site_list=site_list,
             p_names_tuple=(p_names,) * len(site_list),
             ip_df_dict_tuple=ip_df_dict_tuple,
@@ -384,104 +413,198 @@ def opti_per_pft(pft, sites_per_pft_dict, settings_dict):
         p_ubound_scaled.append(params[p]["ub"] / params[p]["ini"])  # type: ignore
         p_lbound_scaled.append(params[p]["lb"] / params[p]["ini"])  # type: ignore
 
-    # evaluate the cost function for initial guess of parameters
-    # costvalue = costhand(p_values_scalar=list(np.ones(len(p_names))))
+    if (settings_dict["do_l-bfgs-b_from_prev"]) and (
+        settings_dict["xbest_dict_file_path"] is not None
+    ):
+        xbest_dict_file = f"{settings_dict['xbest_dict_file_path']}{pft}_opti_dict.json"
 
-    # get the options for the CMA-ES optimizer
-    opts, sigma0 = get_cmaes_options(
-        settings_dict["scale_coord"],
-        p_lbound_scaled,
-        p_ubound_scaled,
-        pft,
-        settings_dict,
-    )
+        with open(xbest_dict_file, "r") as f:
+            xbest_dict = json.load(f)
 
-    # run the CMA-ES optimizer
-    with HiddenPrints():
-        if settings_dict["scale_coord"]:
-            ###### hints about scale coordinates ####################################
-            # if parameters have different ranges, then it's useful to scale
-            # parameters between 0 and 1, and the cost function should be modified accordingly
-            # https://github.com/CMA-ES/pycma/issues/210
-            # https://github.com/CMA-ES/pycma/issues/248
-            # https://cma-es.github.io/cmaes_sourcecode_page.html#practical
-            # bounds and rescaling section of
-            # https://github.com/CMA-ES/pycma/blob/development/notebooks/notebook-usecases-basics.ipynb
-            ##############################################################################
-            # scale the functions to make parameters range between 0 and 1
+        xbest_cmaes = xbest_dict["xbest"]
 
-            # using stable version of cmaes (v3.3.0)
-            # scaled_costhand = cma.ScaleCoordinates(
-            #     costhand,
-            #     multipliers=[
-            #         ub - lb for ub, lb in zip(p_ubound_scaled, p_lbound_scaled)
-            #     ],  # (ub - lb) for each parameter
-            #     zero=[
-            #         -lb/(ub-lb) for ub, lb in zip(p_ubound_scaled, p_lbound_scaled)
-            #     ],  # -lb/(ub-lb) for each parameter
-            # )
+        xbest_actual = scale_back_params(xbest_cmaes, p_names, params)
 
-            # using development version of cmaes (v3.3.0.1)
-            scaled_costhand = cma.ScaleCoordinates(
-                costhand,
-                multipliers=[
-                    ub - lb for ub, lb in zip(p_ubound_scaled, p_lbound_scaled)
-                ],  # (ub - lb) for each parameter
-                lower=p_lbound_scaled,  # lower bound for each parameter
-            )
+        ini_costval = costhand(p_values_scalar=xbest_actual)
 
-            # change the bounds to [0, 1] for each parameters
-            opts["bounds"] = [np.zeros(len(p_names)), np.ones(len(p_names))]
+        bounds = Bounds(np.array(p_lbound_scaled), np.array(p_ubound_scaled))
 
-            # initial guess for parameters scalar to be optimized
-            p_values_scalar = [0.5] * len(p_names)
+        start_time = time.time()
+        lbfgs_b_op = minimize(
+            fun=costhand,
+            x0=xbest_actual,
+            method="L-BFGS-B",
+            bounds=bounds,
+            options={
+                "disp": True,
+                "maxfun": 30000,
+                "ftol": 1e-8,
+                "maxcor": 10,
+                "gtol": 1e-05,
+                "eps": 1e-08,
+                "maxls": 20,
+            },
+        )
 
-            # run the optimization
-            cma_es = cma.CMAEvolutionStrategy(
-                p_values_scalar, sigma0, opts
-            )  # X0 (initial guess) is p_values_scalar,
-            # sigma0 (initial standard deviation/ step size) , opts (options)
-            res = cma_es.optimize(scaled_costhand)
+        time_delta = time.time() - start_time
 
-        else:  # if no scaling is needed
-            # initial guess for parameters scalar to be optimized
-            p_values_scalar = [1.0] * len(p_names)
+        percentage_reduction_in_cost = (ini_costval - lbfgs_b_op.fun) / ini_costval * 100.0
 
-            cma_es = cma.CMAEvolutionStrategy(
-                p_values_scalar, sigma0, opts
-            )  # X0 (initial guess) is p_values_scalar * 2.0 (i.e., 1.0),
-            # sigma0 (initial standard deviation/ step size) , opts (options)
-            res = cma_es.optimize(costhand)
+        lbfgs_b_op_dict = {
+            "initial_cost": ini_costval,
+            "fbest": lbfgs_b_op.fun,
+            "percentage_reduction_in_cost": percentage_reduction_in_cost,
+            "jac": lbfgs_b_op.jac,
+            "nfev": lbfgs_b_op.nfev,
+            "njev": lbfgs_b_op.njev,
+            "nit": lbfgs_b_op.nit,
+            "status": lbfgs_b_op.status,
+            "message": lbfgs_b_op.message,
+            "xbest": lbfgs_b_op.x,
+            "success": lbfgs_b_op.success,
+        }
 
-    # collect the optimization results in a dictionary
-    # descriptions from https://github.com/CMA-ES/pycma/blob/master/cma/evolution_strategy.py#L977
-    op_opti = {}
-    op_opti["site_year"] = np.nan  # add the site year in case of site year optimization
-    op_opti["xbest"] = res.result.xbest  # best solution evaluated
-    op_opti["fbest"] = res.result.fbest  # objective function value of best solution
-    op_opti[
-        "evals_best"
-    ] = res.result.evals_best  # evaluation count when xbest was evaluated
-    op_opti[
-        "evaluations"
-    ] = res.result.evaluations  # number of function evaluations done
-    op_opti[
-        "xfavorite"
-    ] = res.result.xfavorite  # distribution mean in "phenotype" space,
-    # to be considered as current best estimate of the optimum
-    op_opti[
-        "stop"
-    ] = (
-        res.result.stop
-    )  # stop criterion reached (termination conditions in a dictionary)
-    op_opti["stds"] = res.result.stds  # effective standard deviations, can be used to
-    #   compute a lower bound on the expected coordinate-wise distance
-    #   to the true optimum, which is (very) approximately stds[i] *
-    #   dimension**0.5 / min(mueff, dimension) / 1.5 / 5 ~ std_i *
-    #   dimension**0.5 / min(popsize / 2, dimension) / 5, where
-    #   dimension = CMAEvolutionStrategy.N and mueff =
-    #   CMAEvolutionStrategy.sp.weights.mueff ~ 0.3 * popsize
-    op_opti["opti_param_names"] = p_names  # list of parameters optimized
+        logger.info(
+            (
+                "PFT %s, Starting cost value: %.4f, Final cost value: %.4f, Percentage cost reduction: %4f, nfev: %d, njev: %d, nit: %d, status: %d, "
+                "message: %s, success: %s, time elapsed: %.2f seconds"
+            ),
+            pft,
+            ini_costval,
+            lbfgs_b_op.fun,
+            percentage_reduction_in_cost,
+            lbfgs_b_op.nfev,
+            lbfgs_b_op.njev,
+            lbfgs_b_op.nit,
+            lbfgs_b_op.status,
+            lbfgs_b_op.message,
+            str(lbfgs_b_op.success),
+            time_delta,
+        )
 
-    # save the optimization results in a .json file
-    save_opti_results(op_opti, settings_dict, pft)
+        opti_res_save_dir = f"./opti_results/{settings_dict['model_name']}/{settings_dict['exp_name']}/opti_dicts/"
+        os.makedirs(opti_res_save_dir, exist_ok=True)
+
+        np.save(
+            f"{opti_res_save_dir}{pft}_opti_dict.npy",
+            lbfgs_b_op_dict,
+        )
+
+    elif (settings_dict["do_l-bfgs-b_from_prev"]) and (
+        settings_dict["xbest_dict_file_path"] is None
+    ):
+        raise ValueError(
+            "`xbest_dict_file_path` should be provided when"
+            "`do_l-bfgs-b_from_prev` is set to True"
+        )
+    else:
+
+        # evaluate the cost function for initial guess of parameters
+        # costvalue = costhand(p_values_scalar=list(np.ones(len(p_names))))
+
+        # get the options for the CMA-ES optimizer
+        opts, sigma0 = get_cmaes_options(
+            settings_dict["scale_coord"],
+            p_lbound_scaled,
+            p_ubound_scaled,
+            pft,
+            settings_dict,
+        )
+
+        # run the CMA-ES optimizer
+        with HiddenPrints():
+            if settings_dict["scale_coord"]:
+                ###### hints about scale coordinates ####################################
+                # if parameters have different ranges, then it's useful to scale
+                # parameters between 0 and 1, and the cost function should be modified accordingly
+                # https://github.com/CMA-ES/pycma/issues/210
+                # https://github.com/CMA-ES/pycma/issues/248
+                # https://cma-es.github.io/cmaes_sourcecode_page.html#practical
+                # bounds and rescaling section of
+                # https://github.com/CMA-ES/pycma/blob/development/notebooks/notebook-usecases-basics.ipynb
+                ##############################################################################
+                # scale the functions to make parameters range between 0 and 1
+
+                # using stable version of cmaes (v3.3.0)
+                # scaled_costhand = cma.ScaleCoordinates(
+                #     costhand,
+                #     multipliers=[
+                #         ub - lb for ub, lb in zip(p_ubound_scaled, p_lbound_scaled)
+                #     ],  # (ub - lb) for each parameter
+                #     zero=[
+                #         -lb/(ub-lb) for ub, lb in zip(p_ubound_scaled, p_lbound_scaled)
+                #     ],  # -lb/(ub-lb) for each parameter
+                # )
+
+                # using development version of cmaes (v3.3.0.1)
+                scaled_costhand = cma.ScaleCoordinates(
+                    costhand,
+                    multipliers=[
+                        ub - lb for ub, lb in zip(p_ubound_scaled, p_lbound_scaled)
+                    ],  # (ub - lb) for each parameter
+                    lower=p_lbound_scaled,  # lower bound for each parameter
+                )
+
+                # change the bounds to [0, 1] for each parameters
+                opts["bounds"] = [np.zeros(len(p_names)), np.ones(len(p_names))]
+
+                # initial guess for parameters scalar to be optimized
+                p_values_scalar = np.array([1.0] * len(p_names))
+                multipliers = np.array([ub - lb for ub, lb in zip(p_ubound_scaled, p_lbound_scaled)])
+                zero = np.array(
+                    [-lb / (ub - lb) for ub, lb in zip(p_ubound_scaled, p_lbound_scaled)]
+                )
+                p_values_scalar = list((p_values_scalar / multipliers) + zero) # coordinate transformed
+                
+                # # initial guess for parameters scalar to be optimized
+                # p_values_scalar = [0.5] * len(p_names)
+
+                # run the optimization
+                cma_es = cma.CMAEvolutionStrategy(
+                    p_values_scalar, sigma0, opts
+                )  # X0 (initial guess) is p_values_scalar,
+                # sigma0 (initial standard deviation/ step size) , opts (options)
+                res = cma_es.optimize(scaled_costhand)
+
+            else:  # if no scaling is needed
+                # initial guess for parameters scalar to be optimized
+                p_values_scalar = [1.0] * len(p_names)
+
+                cma_es = cma.CMAEvolutionStrategy(
+                    p_values_scalar, sigma0, opts
+                )  # X0 (initial guess) is p_values_scalar * 2.0 (i.e., 1.0),
+                # sigma0 (initial standard deviation/ step size) , opts (options)
+                res = cma_es.optimize(costhand)
+
+        # collect the optimization results in a dictionary
+        # descriptions from https://github.com/CMA-ES/pycma/blob/master/cma/evolution_strategy.py#L977
+        op_opti = {}
+        op_opti["site_year"] = np.nan  # add the site year in case of site year optimization
+        op_opti["xbest"] = res.result.xbest  # best solution evaluated
+        op_opti["fbest"] = res.result.fbest  # objective function value of best solution
+        op_opti[
+            "evals_best"
+        ] = res.result.evals_best  # evaluation count when xbest was evaluated
+        op_opti[
+            "evaluations"
+        ] = res.result.evaluations  # number of function evaluations done
+        op_opti[
+            "xfavorite"
+        ] = res.result.xfavorite  # distribution mean in "phenotype" space,
+        # to be considered as current best estimate of the optimum
+        op_opti[
+            "stop"
+        ] = (
+            res.result.stop
+        )  # stop criterion reached (termination conditions in a dictionary)
+        op_opti["stds"] = res.result.stds  # effective standard deviations, can be used to
+        #   compute a lower bound on the expected coordinate-wise distance
+        #   to the true optimum, which is (very) approximately stds[i] *
+        #   dimension**0.5 / min(mueff, dimension) / 1.5 / 5 ~ std_i *
+        #   dimension**0.5 / min(popsize / 2, dimension) / 5, where
+        #   dimension = CMAEvolutionStrategy.N and mueff =
+        #   CMAEvolutionStrategy.sp.weights.mueff ~ 0.3 * popsize
+        op_opti["opti_param_names"] = p_names  # list of parameters optimized
+
+        # save the optimization results in a .json file
+        save_opti_results(op_opti, settings_dict, pft)
