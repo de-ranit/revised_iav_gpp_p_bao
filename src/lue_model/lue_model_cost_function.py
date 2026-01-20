@@ -38,6 +38,7 @@ def filter_lue_data(
     co2_var_name,
     nstepsday=None,
     site_year=None,
+    et_var_name="ET",
 ):
     """
     filter bad quailty data, data gaps before calculating cost function or
@@ -125,7 +126,7 @@ def filter_lue_data(
         # remove nan ET_obs, ET_sim, ET_RANDUNC,
         # as cost function can't be calculated for these points
         et_nan_indices = (
-            np.isnan(ip_df_dict["ET"])
+            np.isnan(ip_df_dict[et_var_name])
             | np.isnan(ip_df_dict["ET_RANDUNC"])
             | np.isnan(lue_model_op["wai_results"]["etsno"])
         )
@@ -144,7 +145,7 @@ def filter_lue_data(
 
     # data_filtering == "strict" only use good quality observed data, drop anything else
     # strict data filtering only works for hourly data
-    else:
+    elif data_filtering == "strict":
         if ip_df_dict["Temp_res"] == "Daily":  # for daily data
             sys.exit("strict data filtering only works for hourly data, exiting")
 
@@ -201,7 +202,7 @@ def filter_lue_data(
         # remove nan ET_obs, ET_sim, ET_RANDUNC,
         # as cost function can't be calculated for these points
         et_nan_indices = (
-            np.isnan(ip_df_dict["ET"])
+            np.isnan(ip_df_dict[et_var_name])
             | np.isnan(ip_df_dict["ET_RANDUNC"])
             # | np.isnan(lue_model_op["wai_results"]["et"])
             | np.isnan(lue_model_op["wai_results"]["etsno"])
@@ -228,6 +229,8 @@ def filter_lue_data(
             | ta_fill_indices
             | p_fill_indices
         )
+    else:
+        sys.exit("data_filtering must be one of: nominal, strict")
 
     if site_year is None:  # all year optimization
         # filter data based on drop_indices and get the arrays to be used in cost function
@@ -235,7 +238,7 @@ def filter_lue_data(
         gpp_sim = lue_model_op["gpp_lue"][~drop_gpp_data_indices]
         nee_unc = ip_df_dict["NEE_RANDUNC"][~drop_gpp_data_indices]
 
-        et_obs = ip_df_dict["ET"][~drop_et_data_indices]
+        et_obs = ip_df_dict[et_var_name][~drop_et_data_indices]
         # et_sim = lue_model_op["wai_results"]["et"][~drop_et_data_indices]
         et_sim = lue_model_op["wai_results"]["etsno"][~drop_et_data_indices]
         et_unc = ip_df_dict["ET_RANDUNC"][~drop_et_data_indices]
@@ -263,7 +266,7 @@ def filter_lue_data(
             ~drop_gpp_data_indices & (ip_df_dict["year"] == site_year)
         ]
 
-        et_obs = ip_df_dict["ET"][
+        et_obs = ip_df_dict[et_var_name][
             ~drop_et_data_indices & (ip_df_dict["year"] == site_year)
         ]
         et_sim = lue_model_op["wai_results"]["etsno"][
@@ -398,6 +401,7 @@ def lue_model_cost_function(
     synthetic_data,
     site_year=None,
     consider_yearly_cost=False,
+    et_var_name="ET",
 ):
     """
     Calculate cost function value for LUE model with good quality observed and simulated data
@@ -451,6 +455,7 @@ def lue_model_cost_function(
             data_filtering,
             co2_var_name,
             nstepsday,
+            et_var_name=et_var_name,
         )
     else:  # site year optimization
         gpp_obs, gpp_sim, nee_unc, et_obs, et_sim, et_unc, *_ = filter_lue_data(
@@ -460,6 +465,7 @@ def lue_model_cost_function(
             co2_var_name,
             nstepsday,
             site_year,
+            et_var_name=et_var_name,
         )
 
     if (gpp_obs.size == 0) or (

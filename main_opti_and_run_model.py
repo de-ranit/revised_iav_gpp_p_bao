@@ -12,6 +12,7 @@ first created: 2023-11-07
 import json
 from pathlib import Path
 import sys
+import shutil
 import logging
 import logging.config
 import glob
@@ -496,6 +497,17 @@ def main():
                 separators=(", ", ": "),
             )
 
+        slurmjob_file = Path(
+                "opti_results", model_settings["model_name"], model_settings["exp_name"]
+            ) / "send_slurm_job.sh"
+        if not slurmjob_file.exists():
+            shutil.copy2(
+                Path("./send_slurm_job.sh"),
+                Path(
+                    "opti_results", model_settings["model_name"], model_settings["exp_name"]
+                ),
+            )
+
         #########################################################################
         # Optimizing parameters for all years of each site/ site year in parallel
         if (model_settings["eval_mode"] == "parallel") and (
@@ -661,7 +673,9 @@ def main():
                     )
                 )
         else:
-            raise ValueError("eval_mode must be one of: parallel, sequence, when run_mode is optim")
+            raise ValueError(
+                "eval_mode must be one of: parallel, sequence, when run_mode is optim"
+            )
 
     ###########################################################################################
     # use the optimized parameters to forward run the model and calculate the model performance
@@ -738,7 +752,8 @@ def main():
         # plot histogram of optimized parameters, model performance metrices, etc.
         elif model_settings["eval_mode"] == "summarize_exp_results":
             plot_exp_result(model_settings)
-            
+
+
 ################################################################################
 if __name__ == "__main__":
     main()

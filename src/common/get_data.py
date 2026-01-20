@@ -66,13 +66,13 @@ def get_time_info(site_name, temp_res):
             nstepsday = 48  # for half-hourly sites, use 48 time steps per day
             start_hour_ind = 23  # start index of noon data (11:30 hrs.)
             end_hour_ind = 26  # end index of noon data (12:30 hrs.)
-    elif temp_res == "Hourly": # when running the model for hourly timestep
+    elif temp_res == "Hourly":  # when running the model for hourly timestep
         nstepsday = 24  # for hourly sites, use 24 time steps per day
         start_hour_ind = 11  # start index of noon data (11:00 hrs.)
         end_hour_ind = 14  # end index of noon data (13:00 hrs.)
     elif temp_res == "Daily":
-        nstepsday = 1 # for daily sites, use 1 time step per day
-        start_hour_ind = 0 #ToDo: check this indices for implementing daily in P-model
+        nstepsday = 1  # for daily sites, use 1 time step per day
+        start_hour_ind = 0  # ToDo: check this indices for implementing daily in P-model
         end_hour_ind = 0
     else:
         raise ValueError(
@@ -133,6 +133,12 @@ def read_nc_data(infile, settings_dict):
     ip_df_dict["ET"] = np.clip(
         ip_df_dict["ET"], a_min=0.0, a_max=None
     )  # fill negative ET values with 0
+    try:
+        ip_df_dict["ET_CORR"] = np.clip(
+            ip_df_dict["ET_CORR"], a_min=0.0, a_max=None
+        )  # fill negative ET values with 0
+    except KeyError:
+        pass
 
     return ip_df_dict
 
@@ -157,7 +163,7 @@ def df_to_dict(df):
     return data_dict
 
 
-def get_daily_data_for_wai(sub_daily_dict):
+def get_daily_data_for_wai(sub_daily_dict, et_var_name="ET"):
     """
     select varibales needed for calculation of WAI and resample
     them to daily timescale (for faster WAI spinup)
@@ -175,7 +181,7 @@ def get_daily_data_for_wai(sub_daily_dict):
         "PET": sub_daily_dict["PET"],
         "NETRAD_GF": sub_daily_dict["NETRAD_GF"],
         "P_GF": sub_daily_dict["P_GF"],
-        "ET": sub_daily_dict["ET"],
+        "ET": sub_daily_dict[et_var_name],
         "ET_RANDUNC": sub_daily_dict["LE_RANDUNC"],
         "LE_QC": sub_daily_dict["LE_QC"],
     }  # variables needed for calculation of WAI
@@ -254,10 +260,12 @@ def get_data(site_name, settings_dict):
     )[0]
     ip_df_dict = read_nc_data(forcing_data_filename, settings_dict)
 
-    if (ip_df_dict["Temp_res"] == "Daily") and (settings_dict["model_name"] == "P_model"):
+    if (ip_df_dict["Temp_res"] == "Daily") and (
+        settings_dict["model_name"] == "P_model"
+    ):
         sys.exit(
             (
-                f"Model {settings_dict['model_name']} cannot be" 
+                f"Model {settings_dict['model_name']} cannot be"
                 "run with daily data. use HalfHourly or Hourly data"
             )
         )
@@ -266,7 +274,7 @@ def get_data(site_name, settings_dict):
     time_info = get_time_info(site_name, ip_df_dict["Temp_res"])
 
     ip_df_daily_wai = df_to_dict(
-        get_daily_data_for_wai(ip_df_dict)
+        get_daily_data_for_wai(ip_df_dict, et_var_name=settings_dict["et_var_name"])
     )  # get varibales for WAI calculation at daily timestep
     # in case of daily data, it will have same values of variables from as ip_df_dict
     wai_output = prep_wai_output(

@@ -331,7 +331,17 @@ def calc_gpp_model_perform(
         warnings.filterwarnings("error")  # turn warnings into errors
         # calculate model performance metrices
         for func_ix, metric_func in enumerate(calc_metric_func_list):
-            if (gpp_obs_m_filtered.size < 3) and (
+            if (gpp_obs_w_filtered.size < 3) and (
+                func_ix in [10, 11, 12, 13, 14, 27, 32, 37]  # , 42]
+            ):
+                # if there are less than 3 weekly good quality data points,
+                # then skip the weekly metrices
+                logger.warning(
+                    "%s : only %d points left to calculate weekly metrices, skipping",
+                    ip_df_dict["SiteID"],
+                    gpp_obs_w_filtered.size,
+                )
+            elif (gpp_obs_m_filtered.size < 3) and (
                 func_ix in [15, 16, 17, 18, 19, 28, 33, 38]  # , 43]
             ):
                 # if there are less than 3 monthly good quality data points,
@@ -358,6 +368,8 @@ def calc_gpp_model_perform(
                 # if a runtime warning is produced, store the warning in a list
                 except Warning as e:
                     runtime_error_list.append(e)
+                except Exception as exception:
+                    runtime_error_list.append(exception)
 
     # log and print all the runtime warnings
     for er in runtime_error_list:
@@ -424,6 +436,7 @@ def prep_results(ip_df_dict, model_op, settings_dict, xbest, p_names):
             ip_df_dict,
             settings_dict["data_filtering"],
             settings_dict["CO2_var"],
+            et_var_name=settings_dict["et_var_name"],
         )
 
         (
@@ -480,6 +493,7 @@ def prep_results(ip_df_dict, model_op, settings_dict, xbest, p_names):
             ip_df_dict,
             settings_dict["data_filtering"],
             settings_dict["CO2_var"],
+            et_var_name=settings_dict["et_var_name"],
         )
 
         (
