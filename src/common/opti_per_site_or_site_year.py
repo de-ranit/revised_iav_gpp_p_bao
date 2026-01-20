@@ -96,14 +96,15 @@ def get_cmaes_options(
     # https://github.com/CMA-ES/pycma/blob/master/cma/evolution_strategy.py#L415
     # accessible via cma.CMAOptions() or cma.CMAOptions('verb') or cma.CMAOptions('tol') etc.
     opts = {
+        "seed": 199340,
         "bounds": bounds,  # lower (=bounds[0])
         # and upper domain boundaries, each a scalar or a list/vector'
-        "maxiter": 500,  #'100 + 150 * (N+3)**2 // popsize**0.5  #v maximum number of iterations'
-        "maxfevals": 50000,  #'inf
+        # "maxiter": 500,  #'100 + 150 * (N+3)**2 // popsize**0.5  #v maximum number of iterations'
+        # "maxfevals": 50000,  #'inf
         # v maximum number of function evaluations'
-        "popsize": 1000,  #'4 + 3 * np.log(N)
+        # "popsize": 1000,  #'4 + 3 * np.log(N)
         # population size, AKA lambda, int(popsize) is the number of new solution per iteration'
-        "popsize_factor": 1,  # multiplier for popsize,
+        # "popsize_factor": 1,  # multiplier for popsize,
         # convenience option to increase default popsize'
         "tolx": 1e-6,  #'1e-11
         # v termination criterion: tolerance in x-changes'
@@ -241,6 +242,7 @@ def optimize_model(
                 data_filtering=settings_dict["data_filtering"],
                 cost_func=settings_dict["cost_func"],
                 consider_yearly_cost=settings_dict["cost_iav"],
+                et_var_name=settings_dict["et_var_name"],
             )
         else:  # in case of site year optimization
             costhand = partial(
@@ -256,6 +258,7 @@ def optimize_model(
                 data_filtering=settings_dict["data_filtering"],
                 cost_func=settings_dict["cost_func"],
                 site_year=site_year,
+                et_var_name=settings_dict["et_var_name"],
             )
 
     # Define costhand and parameters in case of LUE Model
@@ -320,6 +323,7 @@ def optimize_model(
                 cost_func=settings_dict["cost_func"],
                 synthetic_data=synthetic_data,
                 consider_yearly_cost=settings_dict["cost_iav"],
+                et_var_name=settings_dict["et_var_name"],
             )
 
         else:  # in case of site year optimization
@@ -336,6 +340,7 @@ def optimize_model(
                 cost_func=settings_dict["cost_func"],
                 synthetic_data=synthetic_data,
                 site_year=site_year,
+                et_var_name=settings_dict["et_var_name"],
             )
     else:
         raise ValueError(
@@ -445,7 +450,15 @@ def optimize_model(
                 opts["bounds"] = [np.zeros(len(p_names)), np.ones(len(p_names))]
 
                 # initial guess for parameters scalar to be optimized
-                p_values_scalar = [0.5] * len(p_names)
+                p_values_scalar = np.array([1.0] * len(p_names))
+                multipliers = np.array([ub - lb for ub, lb in zip(p_ubound_scaled, p_lbound_scaled)])
+                zero = np.array(
+                    [-lb / (ub - lb) for ub, lb in zip(p_ubound_scaled, p_lbound_scaled)]
+                )
+                p_values_scalar = list((p_values_scalar / multipliers) + zero) # coordinate transformed
+                
+                # initial guess for parameters scalar to be optimized
+                # p_values_scalar = [0.5] * len(p_names)
 
                 # run the optimization
                 cma_es = cma.CMAEvolutionStrategy(
@@ -496,6 +509,22 @@ def optimize_model(
         #   dimension = CMAEvolutionStrategy.N and mueff =
         #   CMAEvolutionStrategy.sp.weights.mueff ~ 0.3 * popsize
         op_opti["opti_param_names"] = p_names  # list of parameters optimized
+
+        if site_year is not None:
+            logger.info(
+            "%s (%s): optimization completed in %s function evaluations, stop criteria: %s",
+            ip_df_dict["SiteID"],
+            str(int(site_year)),
+            str(op_opti["evaluations"]),
+            str(op_opti["stop"]),
+        )
+        else:
+            logger.info(
+                "%s: optimization completed in %s function evaluations, stop criteria: %s",
+                ip_df_dict["SiteID"],
+                str(op_opti["evaluations"]),
+                str(op_opti["stop"]),
+            )
 
         # if the optimization stopped due to flat fitness (can hapen depending
         # on formulation of cost function) and the site will not be optimized, log it
