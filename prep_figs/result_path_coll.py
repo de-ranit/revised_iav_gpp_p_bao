@@ -90,6 +90,3 @@ glob_opti_lue_model_res_path = Path(
 hr_ip_data_path = Path(
     "/path/to/hourly/forcing/data/in/nc/format"
 )
-dd_ip_data_path = Path(
-    "/path/to/daily/forcing/data/in/nc/format"
-)
