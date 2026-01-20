@@ -29,8 +29,9 @@ pft_list = list(sites_per_pft_dict.keys())
 
 # submit a slurm job for each PFT
 for k, v in sites_per_pft_dict.items():
+    model_name = "LUE" # "P" # "LUE" 
     # generate a job name based on the PFT
-    job_name = f"opti_{k}"
+    job_name = f"{k}_{model_name}_opti"
 
     ##################### EDIT THE FOLLOWING PARAMETERS #####################
     # specify the partition name
@@ -42,7 +43,7 @@ for k, v in sites_per_pft_dict.items():
     # set the number of cores based on number of sites in a PFT
     CORE_COUNT = len(v) if len(v) < MAX_NO_OF_WORKERS else MAX_NO_OF_WORKERS
     # specify runtime in based on number of sites in a PFT
-    RUN_TIME = "4-2:00:00" if k == "ENF" else "2-2:00:00"
+    RUN_TIME = "30-2:00:00" if k == "ENF" else "20-2:00:00"
     # specify user email id
     USER_EMAIL = "rde@bgc-jena.mpg.de" #ToDo: change according to your email id
     ##########################################################################
@@ -79,7 +80,7 @@ for k, v in sites_per_pft_dict.items():
         ),
         "",
         "# Name of the conda environment and location of conda.sh",
-        'ENV_NAME="my_general_env_2023"',
+        'ENV_NAME="gen_env_2024"',
         "# if the conda environment is already not active, load the conda environment",
         "if [[ $CONDA_DEFAULT_ENV != $ENV_NAME ]]; then",
         "    # get location of conda.sh",
@@ -98,8 +99,10 @@ for k, v in sites_per_pft_dict.items():
         "# Change to directory where the python script is located",
         f"cd {ROOT_PATH}",
         "",
+        "export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}",
+        "",
         "# Run the python script",
-        f"python -u main_opti_and_run_model.py {pft_no}",
+        f"srun python -u main_opti_and_run_model.py {pft_no}",
     ]
 
     # create a folder to store the error and output files (if it does not exist)
