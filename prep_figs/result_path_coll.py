@@ -16,28 +16,28 @@ from pathlib import Path
 per_site_yr_p_model_res_path = Path(
     (
         "../model_results/P_model/"
-        "site_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_nnse_unc_my_first_exp"
+        "site_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_nnse_unc_best_opti_ever"
         "/serialized_model_results/"
     )
 )
 per_site_p_model_res_path = Path(
     (
         "../model_results/P_model/"
-        "all_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_nnse_unc_my_first_exp"
+        "all_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_nnse_unc_best_opti_ever"
         "/serialized_model_results/"
     )
 )
 per_site_p_model_res_path_iav = Path(
     (
         "../model_results/P_model/"
-        "all_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_nnse_unc_my_first_exp"
+        "all_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_nnse_unc_best_opti_ever"
         "/serialized_model_results/"
     )
 )
 per_pft_p_model_res_path = Path(
     (
         "../model_results/P_model/"
-        "per_pft_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_nnse_unc_my_first_exp"
+        "per_pft_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_nnse_unc_best_opti_ever"
         "/serialized_model_results/"
     )
 )
@@ -45,7 +45,7 @@ glob_opti_p_model_res_path = Path(
     (
         "../model_results/P_model/"
         "global_opti_BRK15_FPAR_FLUXNET_EO_CO2_"
-        "MLO_NOAA_nominal_cost_nnse_unc_my_first_exp"
+        "MLO_NOAA_nominal_cost_nnse_unc_best_opti_ever"
         "/serialized_model_results/"
     )
 )
@@ -53,28 +53,28 @@ glob_opti_p_model_res_path = Path(
 per_site_yr_lue_model_res_path = Path(
     (
         "../model_results/LUE_model/"
-        "site_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_lue_my_first_exp"
+        "site_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_lue_best_opti_ever"
         "/serialized_model_results/"
     )
 )
 per_site_lue_model_res_path = Path(
     (
         "../model_results/LUE_model/"
-        "all_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_lue_my_first_exp"
+        "all_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_lue_best_opti_ever"
         "/serialized_model_results/"
     )
 )
 per_site_lue_model_res_path_iav = Path(
     (
         "../model_results/LUE_model/"
-        "all_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_lue_my_first_exp"
+        "all_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_lue_best_opti_ever"
         "/serialized_model_results/"
     )
 )
 per_pft_lue_model_res_path = Path(
     (
         "../model_results/LUE_model/"
-        "per_pft_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_lue_my_first_exp/"
+        "per_pft_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_lue_best_opti_ever/"
         "serialized_model_results/"
     )
 )
@@ -82,45 +82,10 @@ glob_opti_lue_model_res_path = Path(
     (
         "../model_results/LUE_model/"
         "global_opti_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA"
-        "_nominal_cost_lue_my_first_exp/serialized_model_results/"
+        "_nominal_cost_lue_best_opti_ever/serialized_model_results/"
     )
 )
 
-per_site_yr_dd_lue_model_res_path = Path(
-    (
-        "../model_results/LUE_model/"
-        "site_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_lue_"
-        "my_first_exp/serialized_model_results/"
-    )
-)
-per_site_dd_lue_model_res_path = Path(
-    (
-        "../model_results/LUE_model/"
-        "all_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_lue_"
-        "my_first_exp/serialized_model_results/"
-    )
-)
-per_site_dd_lue_model_res_path_iav = Path(
-    (
-        "../model_results/LUE_model/"
-        "all_year_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_lue_"
-        "daily_my_first_exp/serialized_model_results/"
-    )
-)
-per_pft_dd_lue_model_res_path = Path(
-    (
-        "../model_results/LUE_model/"
-        "per_pft_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_"
-        "lue_my_first_exp/serialized_model_results/"
-    )
-)
-glob_opti_dd_lue_model_res_path = Path(
-    (
-        "../model_results/LUE_model/"
-        "global_opti_BRK15_FPAR_FLUXNET_EO_CO2_MLO_NOAA_nominal_cost_"
-        "lue_my_first_exp/serialized_model_results/"
-    )
-)
 
 hr_ip_data_path = Path(
     "/path/to/hourly/forcing/data/in/nc/format"
