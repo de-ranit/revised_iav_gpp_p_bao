@@ -4,8 +4,8 @@ authors:
 - family-names: "De"
   given-names: "Ranit"
   orcid: "https://orcid.org/0000-0003-4362-0106"
-title: "Scripts for analyses presented in 'Addressing challenges in simulating inter–annual variability of gross primary production'"
-version: 1.3-published
-doi: 10.5281/zenodo.13729514
-date-released: 2025-04-29
-url: "https://github.com/de-ranit/iav_gpp_p_bao"
+title: "Revised scripts of analyses presented in 'Addressing challenges in simulating inter–annual variability of gross primary production'"
+version: 1.1-preprint
+doi: 10.5281/zenodo.18326239
+date-released: 2025-01-21
+url: "https://github.com/de-ranit/revised_iav_gpp_p_bao"
