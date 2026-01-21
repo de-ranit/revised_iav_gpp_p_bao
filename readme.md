@@ -5,41 +5,38 @@
 </p>
 
 <p align="center">
-  Created in BioRender. De, R. (2024) <a href=https://BioRender.com/i01x768>https://BioRender.com/i01x768</a>
+  Created in BioRender. De, R. (2025) <a href=https://BioRender.com/i01x768>https://BioRender.com/i01x768</a>
 </p>
 
 <p align="center">
-  <a href="https://doi.org/10.5281/zenodo.13729514">
-    <img alt="ZenodoDOI" src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.13729514-blue?logo=Zenodo&logoColor=white&logoSize=auto"
+  <a href="https://doi.org/10.5281/zenodo.18326239">
+    <img alt="ZenodoDOI" src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18326239-blue?logo=Zenodo&logoColor=white&logoSize=auto"
   ></a>
 
   <a href="https://doi.org/10.22541/essoar.174349993.30198378/v2">
-    <img alt="ArticleDOI" src="https://img.shields.io/badge/Article_DOI-10.22541/essoar.174349993.30198378/v1-blue"
+    <img alt="ArticleDOI" src="https://img.shields.io/badge/Article_DOI-10.22541/essoar.174349993.30198378/v2-blue"
   ></a>
 </p>
 
 # Description
 This repository contains revised codes of De et al. (2025, https://doi.org/10.1029/2024MS004697) to perform analysis and reproduce figures of our research paper:
-```
-De, R., Brenning, A., Reichstein, M., Šigut, L., Ruiz Reverter, B., Korkiakoski, M., Paul-Limoges, E., Blanken, P. D., Black, T. A., Gielen, B., Tagesson, T., Wohlfahrt, G., Montagnani, L., Wolf, S., Chen, J., Liddell, M., Desai, A. R., Koirala, S. and Carvalhais, N. (2026). Inter–annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production, ESS Open Archive (Preprint), https://doi.org/10.22541/essoar.174349993.30198378/v2
-```
+> De, R., Brenning, A., Reichstein, M., Šigut, L., Ruiz Reverter, B., Korkiakoski, M., Paul-Limoges, E., Blanken, P. D., Black, T. A., Gielen, B., Tagesson, T., Wohlfahrt, G., Montagnani, L., Wolf, S., Chen, J., Liddell, M., Desai, A. R., Koirala, S. and Carvalhais, N. (2026). Inter–annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production, ESS Open Archive (Preprint), https://doi.org/10.22541/essoar.174349993.30198378/v2
+
 
 We used majorly the following two models in our study. It is highly recommended to get acquainted with the following two research papers before using our codes.
 
 1. Optimality-based model: P-model of Mengoli
-```
-Mengoli, G., Agustí-Panareda, A., Boussetta, S., Harrison, S. P., Trotta, C., and Prentice, I. C. (2022). Ecosystem photosynthesis in
+> Mengoli, G., Agustí-Panareda, A., Boussetta, S., Harrison, S. P.,Trotta, C., and Prentice, I. C. (2022). Ecosystem photosynthesis in
 land-surface models: A first-principles approach incorporating acclimation, Journal of Advances in Modeling Earth Systems, 14,
 https://doi.org/10.1029/2021MS002767
-```
+
 
 2. Semi-empirical model: Bao model
-```
-Bao, S., Wutzler, T., Koirala, S., Cuntz, M., Ibrom, A., Besnard, S., Walther, S., Šigut, L., Moreno, A., Weber, U., Wohlfahrt,695
+> Bao, S., Wutzler, T., Koirala, S., Cuntz, M., Ibrom, A., Besnard, S., Walther, S., Šigut, L., Moreno, A., Weber, U., Wohlfahrt,695
 G., Cleverly, J., Migliavacca, M., Woodgate, W., Merbold, L., Veenendaal, E., and Carvalhais, N. (2022). Environment-sensitivity
 functions for gross primary productivity in light use efficiency models, Agricultural and Forest Meteorology, 312, 108 708,
 https://doi.org/10.1016/j.agrformet.2021.108708
-```
+
 
 
 # Disclaimer
@@ -75,9 +72,7 @@ year = {2026}
 }
 ```
   - APA
-```
-De, R., Brenning, A., Reichstein, M., Šigut, L., Ruiz Reverter, B., Korkiakoski, M., Paul-Limoges, E., Blanken, P. D., Black, T. A., Gielen, B., Tagesson, T., Wohlfahrt, G., Montagnani, L., Wolf, S., Chen, J., Liddell, M., Desai, A. R., Koirala, S. and Carvalhais, N. (2026). Inter–annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production, ESS Open Archive (Preprint), https://doi.org/10.22541/essoar.174349993.30198378/v2
-```
+> De, R., Brenning, A., Reichstein, M., Šigut, L., Ruiz Reverter, B., Korkiakoski, M., Paul-Limoges, E., Blanken, P. D., Black, T. A., Gielen, B., Tagesson, T., Wohlfahrt, G., Montagnani, L., Wolf, S., Chen, J., Liddell, M., Desai, A. R., Koirala, S. and Carvalhais, N. (2026). Inter–annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production, ESS Open Archive (Preprint), https://doi.org/10.22541/essoar.174349993.30198378/v2
 
 **This repository:**
   - BibTeX
@@ -89,14 +84,12 @@ De, R., Brenning, A., Reichstein, M., Šigut, L., Ruiz Reverter, B., Korkiakoski
   year         = 2026,
   publisher    = {Zenodo},
   version      = {v1.1-preprint},
-  doi          = {},
+  doi          = {10.5281/zenodo.18326239},
   url          = {https://github.com/de-ranit/revised_iav_gpp_p_bao}
 }
 ```
   - APA
-```
-De, R. (2026). Revised scripts of analyses presented in ``Addressing challenges in simulating inter–annual variability of gross primary production'' (v1.1-preprint). Zenodo. https://doi.org/10.5281/zenodo.
-```
+> De, R. (2026). Revised scripts of analyses presented in ``Addressing challenges in simulating inter–annual variability of gross primary production'' (v1.1-preprint). Zenodo. https://doi.org/10.5281/zenodo.18326239
 
 # Change Log:
 **v1.1-preprint**
