@@ -1,4 +1,5 @@
-# Addressing Challenges in Simulating Inter–annual Variability of Gross Primary Production
+# Addressing Challenges in Simulating Inter–annual Variability of Gross Primary Production 
+(Revised for the publication: *Inter–annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production; https://doi.org/10.22541/essoar.174349993.30198378/v2*)
 <p align="center">
   <img src=https://raw.githubusercontent.com/de-ranit/iav_gpp_p_bao/refs/heads/main/prep_figs/figures/f01.png alt="workflow" width="600">
 </p>
@@ -12,17 +13,15 @@
     <img alt="ZenodoDOI" src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.13729514-blue?logo=Zenodo&logoColor=white&logoSize=auto"
   ></a>
 
-  <a href="https://doi.org/10.1029/2024MS004697">
-    <img alt="ArticleDOI" src="https://img.shields.io/badge/Article_DOI-10.1029%2F2024MS004697-blue"
+  <a href="https://doi.org/10.22541/essoar.174349993.30198378/v2">
+    <img alt="ArticleDOI" src="https://img.shields.io/badge/Article_DOI-10.22541/essoar.174349993.30198378/v1-blue"
   ></a>
 </p>
 
 # Description
-This repository contains codes to perform analysis and reproduce figures of our research paper:
-
+This repository contains revised codes of De et al. (2025, https://doi.org/10.1029/2024MS004697) to perform analysis and reproduce figures of our research paper:
 ```
-De, R., Bao, S., Koirala, S., Brenning, A., Reichstein, M., Tagesson, T., Liddell, M., Ibrom, A., Wolf, S., Šigut, L., Hörtnagl, L., Woodgate, W., Korkiakoski, M., Merbold, L., Black, T. A., Roland, M., Klosterhalfen, A., Blanken, P. D., Knox, S., Sabbatini, S., Gielen, B., Montagnani, L., Fensholt, R., Wohlfahrt, G., Desai, A. R., Paul-Limoges, E., Galvagno, M., Hammerle, A., Jocher, G., Ruiz Reverter, B., Holl, D., Chen, J., Vitale, L., Arain, M. A., and Carvalhais, N. (2025). Addressing Challenges in Simulating Inter–annual Variability of Gross
-Primary Production. Journal of Advances in Modeling Earth Systems, 17(5), e2024MS004697. https://doi.org/10.1029/2024MS004697
+De, R., Brenning, A., Reichstein, M., Šigut, L., Ruiz Reverter, B., Korkiakoski, M., Paul-Limoges, E., Blanken, P. D., Black, T. A., Gielen, B., Tagesson, T., Wohlfahrt, G., Montagnani, L., Wolf, S., Chen, J., Liddell, M., Desai, A. R., Koirala, S. and Carvalhais, N. (2026). Inter–annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production, ESS Open Archive (Preprint), https://doi.org/10.22541/essoar.174349993.30198378/v2
 ```
 
 We used majorly the following two models in our study. It is highly recommended to get acquainted with the following two research papers before using our codes.
@@ -50,6 +49,7 @@ The codes are written to be compatible with computing platforms and filestructur
 # Structure 
 - `site_info`: This folder contains two `.csv` files: (1) `SiteInfo_BRKsite_list.csv`, this one is necessary so that the code knows data for which all sites are available and can access site specific metadata for preparing results, such as data analysis and grouping of sites according to site characteristics, (2) `site_year_list.csv` lists all the site–years available for site–year specific optimization. This list also contains site–years which are not of good quality, and later gets excluded during data processing steps.
 - `src`: This folder basically contains all source codes. It has four folders: (1) `common` folder contains all the scripts which are common for both the Optimality-based (P-model and its variations) and the semi-empirical model (Bao model and its variations), (2) `lue_model` contains model codes and cost function specific to the semi-empirical model (Bao model and its variations), (3) `p_model` contains model codes and cost function specific to the Optimality-based (P-model and its variations), and (4) `postprocess` contains all the scripts to prepare exploratory plots after parameterization and forward runs.
+- `opti_lbfgs_b`: This folder contains the code to further constrain model parameters obtained from CMA-ES (with a big population size) by using a gradient-based optimizer (L-BFGS-B).
 - `prep_figs`: This folder contains all the scripts to reproduce the figures which are presented in our research paper and its supplementary document. All modelling experiments and their relevant data must be available to reproduce the figures and their relative paths should be correctly mentioned at `result_path_coll.py`.
 
 
@@ -57,66 +57,58 @@ The codes are written to be compatible with computing platforms and filestructur
 - Create a [conda environment and install dependencies](https://docs.conda.io/projects/conda/en/stable/commands/env/create.html). Dependencies are listed in `requirements.yml`.
 - Open `model_settings.xlsx` and specify all the experiment parameters from dropdown or by typing as described in the worksheet.
 - Run `main_opti_and_run_model.py` (except PFT specific optimization). For PFT specific optimization, run `submit_pft_opti_jobs.py`. If you want parallel processing on a high performance computing (HPC) platform, other settings are necessary based on the platform you are using. PFT specific optimization and global optimization can only be performed using parallel processing on a HPC as multi-site data must be used. See `send_slurm_job.sh` for a sample job submission recipie to a HPC platform using [`slurm`](https://slurm.schedmd.com/overview.html) as a job scheduler.
-
+- The codes under `opti_lbfgs_b` can be used to further constrain model parameters obtained from CMA-ES (with a big population size) by using a gradient-based optimizer (L-BFGS-B) for per site-year or per site optimization. For per PFT and global optimization, the required settings must be selected in `model_settings.xlsx`.
 
 # How to cite?
 **Research paper:**
   - BibTeX
 ```
-@article{De_IAV_GPP_2025,
-  author = {De, Ranit and Bao, Shanning and Koirala, Sujan and Brenning, Alexander and Reichstein, Markus and Tagesson, Torbern and Liddell, Michael and Ibrom, Andreas and Wolf, Sebastian and Šigut, Ladislav and Hörtnagl, Lukas and Woodgate, William and Korkiakoski, Mika and Merbold, Lutz and Black, T. Andrew and Roland, Marilyn and Klosterhalfen, Anne and Blanken, Peter D. and Knox, Sara and Sabbatini, Simone and Gielen, Bert and Montagnani, Leonardo and Fensholt, Rasmus and Wohlfahrt, Georg and Desai, Ankur R. and Paul-Limoges, Eugénie and Galvagno, Marta and Hammerle, Albin and Jocher, Georg and Reverter, Borja Ruiz and Holl, David and Chen, Jiquan and Vitale, Luca and Arain, M. Altaf and Carvalhais, Nuno},
-  title = {Addressing Challenges in Simulating Inter–Annual Variability of Gross Primary Production},
-  journal = {Journal of Advances in Modeling Earth Systems},
-  volume = {17},
-  number = {5},
-  pages = {e2024MS004697},
-  doi = {https://doi.org/10.1029/2024MS004697},
-  url = {https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2024MS004697},
-  year = {2025}
+@article{De_2026_paramval,
+author = {De, R. and Brenning, A. and Reichstein, M. and Šigut, L. and Ruiz Reverter, B. and Korkiakoski, M. and Paul-Limoges, E. and Blanken, P. D. and Black, T. A. and Gielen, B. and Tagesson, T. and Wohlfahrt, G. and Montagnani, L. and Wolf, S. and Chen, J. and Liddell, M. and Desai, A. R. and Koirala, S. and Carvalhais, N.},
+doi = {10.22541/essoar.174349993.30198378/v2},
+journal = {ESS Open Archive},
+note = {preprint},
+title = {{Inter--annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production}},
+url = {https://essopenarchive.org/doi/full/10.22541/essoar.174349993.30198378/v2},
+month = {jan},
+year = {2026}
 }
 ```
   - APA
 ```
-De, R., Bao, S., Koirala, S., Brenning, A., Reichstein, M., Tagesson, T., Liddell, M., Ibrom, A., Wolf, S., Šigut, L., Hörtnagl, L., Woodgate, W., Korkiakoski, M., Merbold, L., Black, T. A., Roland, M., Klosterhalfen, A., Blanken, P. D., Knox, S., Sabbatini, S., Gielen, B., Montagnani, L., Fensholt, R., Wohlfahrt, G., Desai, A. R., Paul-Limoges, E., Galvagno, M., Hammerle, A., Jocher, G., Ruiz Reverter, B., Holl, D., Chen, J., Vitale, L., Arain, M. A., and Carvalhais, N. (2025). Addressing Challenges in Simulating Inter–annual Variability of Gross
-Primary Production. Journal of Advances in Modeling Earth Systems, 17(5), e2024MS004697. https://doi.org/10.1029/2024MS004697
+De, R., Brenning, A., Reichstein, M., Šigut, L., Ruiz Reverter, B., Korkiakoski, M., Paul-Limoges, E., Blanken, P. D., Black, T. A., Gielen, B., Tagesson, T., Wohlfahrt, G., Montagnani, L., Wolf, S., Chen, J., Liddell, M., Desai, A. R., Koirala, S. and Carvalhais, N. (2026). Inter–annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production, ESS Open Archive (Preprint), https://doi.org/10.22541/essoar.174349993.30198378/v2
 ```
 
 **This repository:**
   - BibTeX
 ```
-@software{De2025Codes,
+@software{de2026codes_gpp_iav,
   author       = {De, Ranit},
-  title        = {{Scripts for analyses presented in ``Addressing challenges in simulating inter–annual variability of gross primary production''}},
-  month        = apr,
-  year         = 2025,
+  title        = {{Revised scripts of analyses presented in ``Addressing challenges in simulating inter–annual variability of gross primary production''}},
+  month        = jan,
+  year         = 2026,
   publisher    = {Zenodo},
-  version      = {v1.3-published},
-  doi          = {10.5281/zenodo.13729514},
-  url          = {https://github.com/de-ranit/iav_gpp_p_bao}
+  version      = {v1.1-preprint},
+  doi          = {},
+  url          = {https://github.com/de-ranit/revised_iav_gpp_p_bao}
 }
 ```
   - APA
 ```
-De, R. (2025). Scripts for analyses presented in "Addressing challenges in simulating inter–annual variability of gross primary production" (v1.3-published). Zenodo. https://doi.org/10.5281/zenodo.13729514
+De, R. (2026). Revised scripts of analyses presented in ``Addressing challenges in simulating inter–annual variability of gross primary production'' (v1.1-preprint). Zenodo. https://doi.org/10.5281/zenodo.
 ```
 
 # Change Log:
-**v1.3-published**
-- updated readme with reference to the published article.
-
-**v1.2-preprint**
-- updated upper limit of LUEmax model parameter for Bao model and its variations.
-- added an analysis on GPP uncertianty at annual scale.
-- added statistical significance testing for model performance across PFTs and Bioclimatic regions.
-- updated codes for figures as per reviewers' suggestions.
-- updated license.
-
 **v1.1-preprint**
-- Updated readme with citations for the preprint and the Zenodo repository.
+- Dynamic variable name for ET to use either ET or ET_CORR (energy-balance corrected)
+- Usage of strict data filtering
+- Constraining model parameters with L-BFGS-B
+- Running CMA-ES with default lower population size
+- Parameter correlation in Bao model
+- Further analyses presented in https://doi.org/10.22541/essoar.174349993.30198378/v2
 
-**v1.0-preprint**
-- Initial code for submission to a Zenodo repository and publication of preprint.
-
+**v1.3-published (https://github.com/de-ranit/iav_gpp_p_bao)**
+- Codes for the analyses presented in the Version of Record of https://doi.org/10.1029/2024MS004697
 
 # License
 [![MIT License][MIT-License-shield]][MIT License]
@@ -124,10 +116,10 @@ De, R. (2025). Scripts for analyses presented in "Addressing challenges in simul
 This work is licensed under a
 [MIT License][MIT License].
 
-[MIT License]: https://github.com/de-ranit/iav_gpp_p_bao/blob/main/LICENSE
+[MIT License]: https://github.com/de-ranit/revised_iav_gpp_p_bao/blob/main/LICENSE
 [MIT-License-shield]: https://img.shields.io/badge/License-MIT-blue
-<a href="https://github.com/de-ranit/iav_gpp_p_bao/blob/main/LICENSE">
-<img src=https://raw.githubusercontent.com/de-ranit/iav_gpp_p_bao/refs/heads/main/lic_logo/mit_license_logo.png alt="MIT-License-image" width="150"/>
+<a href="https://github.com/de-ranit/revised_iav_gpp_p_bao/blob/main/LICENSE">
+<img src=https://raw.githubusercontent.com/de-ranit/revised_iav_gpp_p_bao/refs/heads/main/lic_logo/mit_license_logo.png alt="MIT-License-image" width="150"/>
 </a>
 
 <span style="font-size:6px;">License logo is created by [ExcaliburZero](https://www.deviantart.com/excaliburzero/art/MIT-License-Logo-595847140), used under [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)</span>
