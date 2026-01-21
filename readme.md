@@ -1,5 +1,5 @@
 # Addressing Challenges in Simulating Inter–annual Variability of Gross Primary Production 
-(Revised for the publication: *Inter–annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production; https://doi.org/10.22541/essoar.174349993.30198378/v2*)
+(**Revised** for the publication: *Inter–annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production; https://doi.org/10.22541/essoar.174349993.30198378/v2*)
 <p align="center">
   <img src=https://raw.githubusercontent.com/de-ranit/iav_gpp_p_bao/refs/heads/main/prep_figs/figures/f01.png alt="workflow" width="600">
 </p>
@@ -19,7 +19,7 @@
 </p>
 
 # Description
-This repository contains revised codes of De et al. (2025, https://doi.org/10.1029/2024MS004697) to perform analysis and reproduce figures of our research paper:
+This repository contains **revised codes** of De et al. (2025, https://doi.org/10.1029/2024MS004697) to perform analysis and reproduce figures of our research paper:
 > De, R., Brenning, A., Reichstein, M., Šigut, L., Ruiz Reverter, B., Korkiakoski, M., Paul-Limoges, E., Blanken, P. D., Black, T. A., Gielen, B., Tagesson, T., Wohlfahrt, G., Montagnani, L., Wolf, S., Chen, J., Liddell, M., Desai, A. R., Koirala, S. and Carvalhais, N. (2026). Inter–annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production, ESS Open Archive (Preprint), https://doi.org/10.22541/essoar.174349993.30198378/v2
 
 
