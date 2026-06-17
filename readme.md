@@ -1,5 +1,5 @@
-# Addressing Challenges in Simulating Inter–annual Variability of Gross Primary Production 
-(**Revised** for the publication: *Inter–annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production; https://doi.org/10.22541/essoar.174349993.30198378/v2*)
+# Addressing Challenges in Simulating Inter–Annual Variability of Gross Primary Production 
+(**Revised** for the publication: *Inter–Annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production; https://doi.org/10.1029/2025MS005116*)
 <p align="center">
   <img src=https://raw.githubusercontent.com/de-ranit/iav_gpp_p_bao/refs/heads/main/prep_figs/figures/f01.png alt="workflow" width="600">
 </p>
@@ -13,34 +13,33 @@
     <img alt="ZenodoDOI" src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18326239-blue?logo=Zenodo&logoColor=white&logoSize=auto"
   ></a>
 
-  <a href="https://doi.org/10.22541/essoar.174349993.30198378/v2">
-    <img alt="ArticleDOI" src="https://img.shields.io/badge/Article_DOI-10.22541/essoar.174349993.30198378/v2-blue"
+  <a href="https://doi.org/10.1029/2025MS005116">
+    <img alt="ArticleDOI" src="https://img.shields.io/badge/Article_DOI-10.1029/2025MS005116-blue"
+  ></a>
+
+  <a href="https://doi.org/10.1029/2024MS004697">
+    <img alt="ArticleDOI" src="https://img.shields.io/badge/Article_DOI-10.1029%2F2024MS004697-blue"
   ></a>
 </p>
 
 # Description
 This repository contains **revised codes** of De et al. (2025, https://doi.org/10.1029/2024MS004697) to perform analysis and reproduce figures of our research paper:
-> De, R., Brenning, A., Reichstein, M., Šigut, L., Ruiz Reverter, B., Korkiakoski, M., Paul-Limoges, E., Blanken, P. D., Black, T. A., Gielen, B., Tagesson, T., Wohlfahrt, G., Montagnani, L., Wolf, S., Chen, J., Liddell, M., Desai, A. R., Koirala, S. and Carvalhais, N. (2026). Inter–annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production, ESS Open Archive (Preprint), https://doi.org/10.22541/essoar.174349993.30198378/v2
+> De, R., Brenning, A., Reichstein, M., Šigut, L., Ruiz Reverter, B., Korkiakoski, M., Paul-Limoges, E., Blanken, P. D., Black, T. A., Gielen, B., Tagesson, T., Wohlfahrt, G., Montagnani, L., Wolf, S., Chen, J., Liddell, M., Desai, A. R., Koirala, S. and Carvalhais, N. (2026). Inter–Annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production. *Journal of Advances in Modeling Earth Systems*, 18(6), e2025MS005116. https://doi.org/10.1029/2025MS005116
 
 
 We used majorly the following two models in our study. It is highly recommended to get acquainted with the following two research papers before using our codes.
 
 1. Optimality-based model: P-model of Mengoli
-> Mengoli, G., Agustí-Panareda, A., Boussetta, S., Harrison, S. P.,Trotta, C., and Prentice, I. C. (2022). Ecosystem photosynthesis in
-land-surface models: A first-principles approach incorporating acclimation, Journal of Advances in Modeling Earth Systems, 14,
-https://doi.org/10.1029/2021MS002767
+> Mengoli, G., Agustí-Panareda, A., Boussetta, S., Harrison, S. P., Trotta, C., and Prentice, I. C. (2022). Ecosystem Photosynthesis in Land-Surface Models: A First-Principles Approach Incorporating Acclimation. *Journal of Advances in Modeling Earth Systems*, 14(1), e2021MS002767. https://doi.org/10.1029/2021MS002767
 
 
 2. Semi-empirical model: Bao model
-> Bao, S., Wutzler, T., Koirala, S., Cuntz, M., Ibrom, A., Besnard, S., Walther, S., Šigut, L., Moreno, A., Weber, U., Wohlfahrt,695
-G., Cleverly, J., Migliavacca, M., Woodgate, W., Merbold, L., Veenendaal, E., and Carvalhais, N. (2022). Environment-sensitivity
-functions for gross primary productivity in light use efficiency models, Agricultural and Forest Meteorology, 312, 108 708,
-https://doi.org/10.1016/j.agrformet.2021.108708
+> Bao, S., Wutzler, T., Koirala, S., Cuntz, M., Ibrom, A., Besnard, S., Walther, S., Šigut, L., Moreno, A., Weber, U., Wohlfahrt, G., Cleverly, J., Migliavacca, M., Woodgate, W., Merbold, L., Veenendaal, E., and Carvalhais, N. (2022). Environment-sensitivity functions for gross primary productivity in light use efficiency models. *Agricultural and Forest Meteorology*, 312, 108708. https://doi.org/10.1016/j.agrformet.2021.108708
 
 
 
 # Disclaimer
-The codes are written to be compatible with computing platforms and filestructure of [MPI-BGC, Jena](https://www.bgc-jena.mpg.de/). It maybe necessary to adapt the certain parts of codes to make them compatible with other computing platforms. All the data should be prepared in NetCDF format and variables should be named as per the code. While the actual data used for analysis is not shared in this repository due to large sizes, all the data source are cited in the relevant paper and openly accessible. Corresponding author (Ranit De, [rde@bgc-jena.mpg.de](mailto:rde@bgc-jena.mpg.de) or [de.ranit19@gmail.com](mailto:de.ranit19@gmail.com)) can be contacted in regards to code usage and data preparation. Any usage of codes are sole responsibility of the users.
+The codes are written to be compatible with computing platforms and filestructure of [MPI-BGC, Jena](https://www.bgc-jena.mpg.de/) and [MPCDF](https://www.mpcdf.mpg.de/). It maybe necessary to adapt the certain parts of codes to make them compatible with other computing platforms. All the data should be prepared in NetCDF format and variables should be named as per the code. While the actual data used for analysis is not shared in this repository due to large sizes, all the data source are cited in the relevant paper and openly accessible. Corresponding author (Ranit De, [rde@bgc-jena.mpg.de](mailto:rde@bgc-jena.mpg.de) or [de.ranit19@gmail.com](mailto:de.ranit19@gmail.com)) can be contacted in regards to code usage and data preparation. Any usage of codes are sole responsibility of the users.
 
 
 # Structure 
@@ -61,44 +60,51 @@ The codes are written to be compatible with computing platforms and filestructur
   - BibTeX
 ```
 @article{De_2026_paramval,
-author = {De, R. and Brenning, A. and Reichstein, M. and Šigut, L. and Ruiz Reverter, B. and Korkiakoski, M. and Paul-Limoges, E. and Blanken, P. D. and Black, T. A. and Gielen, B. and Tagesson, T. and Wohlfahrt, G. and Montagnani, L. and Wolf, S. and Chen, J. and Liddell, M. and Desai, A. R. and Koirala, S. and Carvalhais, N.},
-doi = {10.22541/essoar.174349993.30198378/v2},
-journal = {ESS Open Archive},
-note = {preprint},
-title = {{Inter--annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production}},
-url = {https://essopenarchive.org/doi/full/10.22541/essoar.174349993.30198378/v2},
-month = {jan},
+author = {De, Ranit and Brenning, Alexander and Reichstein, Markus and Šigut, Ladislav and Reverter, Borja Ruiz and Korkiakoski, Mika and Paul-Limoges, Eugénie and Blanken, Peter D. and Black, T. Andrew and Gielen, Bert and Tagesson, Torbern and Wohlfahrt, Georg and Montagnani, Leonardo and Wolf, Sebastian and Chen, Jiquan and Liddell, Michael and Desai, Ankur R. and Koirala, Sujan and Carvalhais, Nuno},
+title = {{Inter–Annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production}},
+journal = {Journal of Advances in Modeling Earth Systems},
+volume = {18},
+number = {6},
+pages = {e2025MS005116},
+doi = {10.1029/2025MS005116},
+url = {https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2025MS005116},
+eprint = {https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1029/2025MS005116},
+note = {e2025MS005116 2025MS005116},
+month = {jun},
 year = {2026}
 }
 ```
   - APA
-> De, R., Brenning, A., Reichstein, M., Šigut, L., Ruiz Reverter, B., Korkiakoski, M., Paul-Limoges, E., Blanken, P. D., Black, T. A., Gielen, B., Tagesson, T., Wohlfahrt, G., Montagnani, L., Wolf, S., Chen, J., Liddell, M., Desai, A. R., Koirala, S. and Carvalhais, N. (2026). Inter–annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production, ESS Open Archive (Preprint), https://doi.org/10.22541/essoar.174349993.30198378/v2
+> De, R., Brenning, A., Reichstein, M., Šigut, L., Ruiz Reverter, B., Korkiakoski, M., Paul-Limoges, E., Blanken, P. D., Black, T. A., Gielen, B., Tagesson, T., Wohlfahrt, G., Montagnani, L., Wolf, S., Chen, J., Liddell, M., Desai, A. R., Koirala, S. and Carvalhais, N. (2026). Inter–Annual Variability of Model Parameters Improves Simulation of Annual Gross Primary Production. *Journal of Advances in Modeling Earth Systems*, 18(6), e2025MS005116. https://doi.org/10.1029/2025MS005116
 
 **This repository:**
   - BibTeX
 ```
 @software{de2026codes_gpp_iav,
   author       = {De, Ranit},
-  title        = {{Revised scripts of analyses presented in ``Addressing challenges in simulating inter–annual variability of gross primary production''}},
-  month        = jan,
+  title        = {{Revised scripts of analyses presented in ``Addressing challenges in simulating inter–Annual variability of gross primary production''}},
+  month        = jun,
   year         = 2026,
   publisher    = {Zenodo},
-  version      = {v1.1-preprint},
+  version      = {v1.2-published},
   doi          = {10.5281/zenodo.18326239},
   url          = {https://github.com/de-ranit/revised_iav_gpp_p_bao}
 }
 ```
   - APA
-> De, R. (2026). Revised scripts of analyses presented in ``Addressing challenges in simulating inter–annual variability of gross primary production'' (v1.1-preprint). Zenodo. https://doi.org/10.5281/zenodo.18326239
+> De, R. (2026). Revised scripts of analyses presented in ``Addressing challenges in simulating inter–Annual variability of gross primary production'' (v1.2-published). *Zenodo*. https://doi.org/10.5281/zenodo.18326239
 
 # Change Log:
+**v1.2-published**
+- updated readme with correct references after publication of our article
+- no changes in actual code
 **v1.1-preprint**
 - Dynamic variable name for ET to use either ET or ET_CORR (energy-balance corrected)
 - Usage of strict data filtering
 - Constraining model parameters with L-BFGS-B
 - Running CMA-ES with default lower population size
 - Parameter correlation in Bao model
-- Further analyses presented in https://doi.org/10.22541/essoar.174349993.30198378/v2
+- Further analyses presented in https://doi.org/10.1029/2025MS005116
 
 **v1.3-published (https://github.com/de-ranit/iav_gpp_p_bao)**
 - Codes for the analyses presented in the Version of Record of https://doi.org/10.1029/2024MS004697
