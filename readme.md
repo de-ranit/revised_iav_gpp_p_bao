@@ -98,6 +98,7 @@ year = {2026}
 **v1.2-published**
 - updated readme with correct references after publication of our article
 - no changes in actual code
+
 **v1.1-preprint**
 - Dynamic variable name for ET to use either ET or ET_CORR (energy-balance corrected)
 - Usage of strict data filtering
